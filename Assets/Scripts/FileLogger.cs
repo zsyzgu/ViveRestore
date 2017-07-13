@@ -16,11 +16,12 @@ public class FileLogger : MonoBehaviour
 
     void Start()
     {
-
+        
     }
 	
-	void OnDestory() {
-		if (writer != null)
+	void OnDestroy()
+    {
+        if (writer != null)
         {
             writer.Close();
             writer = null;
