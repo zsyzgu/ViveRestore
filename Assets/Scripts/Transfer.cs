@@ -5,16 +5,17 @@ using System.IO;
 
 public class Transfer : MonoBehaviour {
     public GameObject[] cubes;
+    private int speed = 2;
 
     StreamReader sr;
     StreamWriter sw;
 
-    bool isTransfer = true;
-    bool isShow = false;
+    bool isTransfer = false;
+    bool isShow = true;
 
     void transfer()
     {
-        sw = File.CreateText("data/default_vec.txt");
+        sw = File.CreateText("data/gyz731_vec.txt");
         string str;
         while ((str = sr.ReadLine()) != null)
         {
@@ -37,7 +38,7 @@ public class Transfer : MonoBehaviour {
     }
 
 	void Start () {
-        sr = File.OpenText("data/default.txt");
+        sr = File.OpenText("data/gyz731.txt");
         if (isTransfer)
         {
             transfer();
@@ -47,10 +48,14 @@ public class Transfer : MonoBehaviour {
 	void Update () {
         if (isShow)
         {
-            string str = sr.ReadLine();
+            string str = "";
+            for (int i = 0; i < speed; i++)
+            {
+                str = sr.ReadLine();
+            }
             string[] tags = str.Split(' ');
             int cnt = 0;
-            for (int i = 5; i < tags.Length; i += 6)
+            for (int i = 3; i < tags.Length; i += 6)
             {
                 cubes[cnt].transform.position = new Vector3(float.Parse(tags[i + 0]), float.Parse(tags[i + 1]), float.Parse(tags[i + 2]));
                 cubes[cnt].transform.eulerAngles = new Vector3(float.Parse(tags[i + 3]), float.Parse(tags[i + 4]), float.Parse(tags[i + 5]));
