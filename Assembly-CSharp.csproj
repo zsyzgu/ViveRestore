@@ -49,6 +49,7 @@
      <Compile Include="Assets\Scripts\DataCollect.cs" />
      <Compile Include="Assets\Scripts\FileLogger.cs" />
      <Compile Include="Assets\Scripts\TaskManager.cs" />
+     <Compile Include="Assets\Scripts\Transfer.cs" />
      <Compile Include="Assets\Scripts\Utility.cs" />
      <Compile Include="Assets\SteamVR\Extras\SteamVR_GazeTracker.cs" />
      <Compile Include="Assets\SteamVR\Extras\SteamVR_LaserPointer.cs" />

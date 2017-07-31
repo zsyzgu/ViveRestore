@@ -14,7 +14,6 @@ public class TaskManager : MonoBehaviour
     public string[] tasks;
     public int actions;
     public float actionPeriod;
-    public GameObject[] balls;
 
     static private int taskId = 0;
     static private int actionId = 0;
@@ -60,17 +59,6 @@ public class TaskManager : MonoBehaviour
 
         float schedule = getEscapeTime() / actionPeriod;
         timePanel.GetComponent<RectTransform>().sizeDelta = new Vector2(timePanelBackground.rect.width * schedule, timePanelBackground.rect.height);
-
-        updateBalls();
-    }
-
-    void updateBalls()
-    {
-        int ballId = actionId / balls.Length;
-        for (int i = 0; i < balls.Length; i++)
-        {
-            balls[i].SetActive(i == ballId);
-        }
     }
 
     static private float getEscapeTime()
@@ -113,6 +101,6 @@ public class TaskManager : MonoBehaviour
 
     static public string getTaskInfo()
     {
-        return instance.tasks[taskId] + " " + ((actionId % 2 == 0) ? "left" : "right") + " " + actionId / 2 + " " + getEscapeTime();
+        return instance.tasks[taskId] + "_" + ((actionId % 2 == 0) ? "left" : "right") + " " + actionId / 2 + " " + getEscapeTime();
     }
 }
