@@ -6,12 +6,14 @@ using System.IO;
 public class Transfer : MonoBehaviour {
     public GameObject[] cubes;
     private int speed = 2;
+    private string filePath = "data/p_toe_kick_left_cum.txt";
 
     StreamReader sr;
     StreamWriter sw;
 
     bool isTransfer = false;
-    bool isShow = true;
+    bool isShow = false;
+    bool isShowPredict = true;
 
     void transfer()
     {
@@ -38,7 +40,7 @@ public class Transfer : MonoBehaviour {
     }
 
 	void Start () {
-        sr = File.OpenText("data/gyz731.txt");
+        sr = File.OpenText(filePath);
         if (isTransfer)
         {
             transfer();
@@ -59,6 +61,25 @@ public class Transfer : MonoBehaviour {
             {
                 cubes[cnt].transform.position = new Vector3(float.Parse(tags[i + 0]), float.Parse(tags[i + 1]), float.Parse(tags[i + 2]));
                 cubes[cnt].transform.eulerAngles = new Vector3(float.Parse(tags[i + 3]), float.Parse(tags[i + 4]), float.Parse(tags[i + 5]));
+                cnt++;
+            }
+        }
+        if (isShowPredict)
+        {
+            string str = sr.ReadLine();
+            if (str == null)
+            {
+                sr.Close();
+                sr = File.OpenText(filePath);
+                str = sr.ReadLine();
+            }
+            string[] tags = str.Split(' ');
+            int cnt = 0;
+            for (int i = 1; i < tags.Length; i += 9)
+            {
+                cubes[cnt].transform.position = new Vector3(float.Parse(tags[i + 0]), float.Parse(tags[i + 1]), float.Parse(tags[i + 2]));
+                cubes[cnt].transform.LookAt(new Vector3(float.Parse(tags[i + 3]), float.Parse(tags[i + 4]), float.Parse(tags[i + 5])));
+                //cubes[cnt].transform.LookAt(new Vector3(float.Parse(tags[i + 6]), float.Parse(tags[i + 7]), float.Parse(tags[i + 8])), Vector3.forward);
                 cnt++;
             }
         }
