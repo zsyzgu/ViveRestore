@@ -6,18 +6,22 @@ using System.IO;
 public class Transfer : MonoBehaviour {
     public GameObject[] cubes;
     private int speed = 2;
-    private string filePath = "data/p_toe_kick_left_cum.txt";
+    private string inputDir = "pic/knee_lift_right/";
+    private string inputFile = "data/gyz731.txt";
+    private string outputFile = "data/gyz731_vec.txt";
+    int id = 5;
 
     StreamReader sr;
+    StreamReader sr1;
+    StreamReader sr2;
     StreamWriter sw;
 
     bool isTransfer = false;
-    bool isShow = false;
     bool isShowPredict = true;
 
     void transfer()
     {
-        sw = File.CreateText("data/gyz731_vec.txt");
+        sw = File.CreateText(outputFile);
         string str;
         while ((str = sr.ReadLine()) != null)
         {
@@ -40,7 +44,7 @@ public class Transfer : MonoBehaviour {
     }
 
 	void Start () {
-        sr = File.OpenText(filePath);
+        sr = File.OpenText(inputFile);
         if (isTransfer)
         {
             transfer();
@@ -48,37 +52,44 @@ public class Transfer : MonoBehaviour {
     }
 	
 	void Update () {
-        if (isShow)
-        {
-            string str = "";
-            for (int i = 0; i < speed; i++)
-            {
-                str = sr.ReadLine();
-            }
-            string[] tags = str.Split(' ');
-            int cnt = 0;
-            for (int i = 3; i < tags.Length; i += 6)
-            {
-                cubes[cnt].transform.position = new Vector3(float.Parse(tags[i + 0]), float.Parse(tags[i + 1]), float.Parse(tags[i + 2]));
-                cubes[cnt].transform.eulerAngles = new Vector3(float.Parse(tags[i + 3]), float.Parse(tags[i + 4]), float.Parse(tags[i + 5]));
-                cnt++;
-            }
-        }
         if (isShowPredict)
         {
-            string str = sr.ReadLine();
-            if (str == null)
+            if (sr1 == null)
             {
-                sr.Close();
-                sr = File.OpenText(filePath);
-                str = sr.ReadLine();
+                if (id == 50)
+                {
+                    return;
+                }
+                sr1 = File.OpenText(inputDir + id.ToString() + ".txt");
+                sr2 = File.OpenText(inputDir + id.ToString() + "_gt.txt");
+                id++;
             }
-            string[] tags = str.Split(' ');
+            string str1 = sr1.ReadLine();
+            string str2 = sr2.ReadLine();
+            str1 = sr1.ReadLine();
+            str2 = sr2.ReadLine();
+            if (str1 == null || str2 == null)
+            {
+                sr1.Close();
+                sr1 = null;
+                sr2.Close();
+                sr2 = null;
+                return;
+            }
+            string[] tags = str1.Split(' ');
             int cnt = 0;
             for (int i = 1; i < tags.Length; i += 9)
             {
                 cubes[cnt].transform.position = new Vector3(float.Parse(tags[i + 0]), float.Parse(tags[i + 1]), float.Parse(tags[i + 2]));
                 cubes[cnt].transform.LookAt(new Vector3(float.Parse(tags[i + 3]), float.Parse(tags[i + 4]), float.Parse(tags[i + 5])));
+                //cubes[cnt].transform.LookAt(new Vector3(float.Parse(tags[i + 6]), float.Parse(tags[i + 7]), float.Parse(tags[i + 8])), Vector3.forward);
+                cnt++;
+            }
+            tags = str2.Split(' ');
+            for (int i = 1; i < tags.Length; i += 9)
+            {
+                cubes[cnt].transform.position = new Vector3(float.Parse(tags[i + 0]) + 0.5f, float.Parse(tags[i + 1]), float.Parse(tags[i + 2]));
+                cubes[cnt].transform.LookAt(new Vector3(float.Parse(tags[i + 3]) + 0.5f, float.Parse(tags[i + 4]), float.Parse(tags[i + 5])));
                 //cubes[cnt].transform.LookAt(new Vector3(float.Parse(tags[i + 6]), float.Parse(tags[i + 7]), float.Parse(tags[i + 8])), Vector3.forward);
                 cnt++;
             }
