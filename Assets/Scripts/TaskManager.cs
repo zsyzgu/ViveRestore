@@ -14,6 +14,9 @@ public class TaskManager : MonoBehaviour
     public string[] tasks;
     public int actions;
     public float actionPeriod;
+    public GameObject leftCube;
+    public GameObject rightCube;
+    public GameObject skeleton;
 
     static private int taskId = 0;
     static private int actionId = 0;
@@ -50,12 +53,24 @@ public class TaskManager : MonoBehaviour
                 taskScreen.text = "Experiment complete.";
             } else
             {
-                taskScreen.text = "Next action : " + tasks[taskId] + " (" + ((actionId % 2 == 0) ? "left" : "right") + " " + actionId / 2 + ")";
+                if (actionId == 0)
+                {
+                    skeleton.SetActive(true);
+                    skeleton.GetComponent<Show>().setMotion(tasks[taskId]);
+                }
+                else
+                {
+                    skeleton.SetActive(false);
+                }
+                taskScreen.text = "Next action : " + tasks[taskId] + " (" + actionId + ")";
             }
         } else
         {
-            taskScreen.text = "Recording : " + tasks[taskId] + " (" + ((actionId % 2 == 0) ? "left" : "right") + " " + actionId / 2 + ")";
+            skeleton.SetActive(false);
+            taskScreen.text = "Recording : " + tasks[taskId] + " (" + actionId + ")";
         }
+        leftCube.GetComponent<MeshRenderer>().material.color = (actionId % 2 == 0) ? Color.red : Color.white;
+        rightCube.GetComponent<MeshRenderer>().material.color = (actionId % 2 == 1) ? Color.red : Color.white;
 
         float schedule = getEscapeTime() / actionPeriod;
         timePanel.GetComponent<RectTransform>().sizeDelta = new Vector2(timePanelBackground.rect.width * schedule, timePanelBackground.rect.height);

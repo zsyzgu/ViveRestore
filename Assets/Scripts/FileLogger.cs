@@ -6,17 +6,18 @@ using System.IO;
 
 public class FileLogger : MonoBehaviour
 {
-    private string fileName = "default";
-    private static StreamWriter writer;
+    private static StreamWriter writer = null;
+    public string userName = "default";
+    static FileLogger logger = null;
 
     void Awake()
     {
-        writer = File.CreateText("data/" + fileName + ".txt");
+        logger = this;
     }
 
     void Start()
     {
-        
+
     }
 	
 	void OnDestroy()
@@ -30,6 +31,10 @@ public class FileLogger : MonoBehaviour
 
     static public void log(string info)
     {
+        if (writer == null)
+        {
+            writer = File.CreateText("data/" + logger.userName + ".txt");
+        }
         writer.WriteLine(info);
         writer.Flush();
     }

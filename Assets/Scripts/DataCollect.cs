@@ -20,12 +20,14 @@ public class DataCollect : MonoBehaviour
         for (int i = 0; i < objects.Length; i++)
         {
             Vector3 position = new Vector3();
-            Vector3 roatation = new Vector3();
+            Vector3 F = new Vector3();
+            Vector3 U = new Vector3();
 
             if (objects[i] != null)
             {
                 position = objects[i].transform.position;
-                roatation = objects[i].transform.eulerAngles;
+                F = position + objects[i].transform.forward * 0.1f;
+                U = position + objects[i].transform.up * 0.1f;
             } else
             {
                 Debug.Log("Device " + i + " is missing.");
@@ -36,7 +38,8 @@ public class DataCollect : MonoBehaviour
                 info += " ";
             }
 
-            info += position.x + " " + position.y + " " + position.z + " " + roatation .x + " " + roatation.y + " " + roatation.z;
+            info += position.x + " " + position.y + " " + position.z + " " + F.x + " " + F.y + " " + F.z + " " + U.x + " " + U.y + " " + U.z;
+
         }
 
         return info;
