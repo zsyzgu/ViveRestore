@@ -8,7 +8,6 @@ public class Show : MonoBehaviour {
     public string filePath = null;
     private string motionName = null;
     StreamReader sr;
-    int motions = 0;
     
 	void Start () {
 
@@ -26,13 +25,7 @@ public class Show : MonoBehaviour {
             {
                 return;
             }
-            if ((motions++) % 2 == 0)
-            {
-                sr = File.OpenText("Std/" + motionName + "_left.txt");
-            } else
-            {
-                sr = File.OpenText("Std/" + motionName + "_right.txt");
-            }
+            sr = File.OpenText("Std/" + motionName + ".txt");
         }
         string str = sr.ReadLine();
         if (str == null)

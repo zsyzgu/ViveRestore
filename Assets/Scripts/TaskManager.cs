@@ -14,13 +14,14 @@ public class TaskManager : MonoBehaviour
     public string[] tasks;
     public int actions;
     public float actionPeriod;
-    public GameObject leftCube;
-    public GameObject rightCube;
     public GameObject skeleton;
+    public GameObject soccer;
+    public GameObject sandbag;
 
     static private int taskId = 0;
     static private int actionId = 0;
     static private bool recording = false;
+    static private bool rest = true;
     static private float startTime = 0f;
 
     void Awake()
@@ -33,44 +34,69 @@ public class TaskManager : MonoBehaviour
 
     }
 
+    void updateEnvironment()
+    {
+        if (taskId < 6)
+        {
+            soccer.SetActive(true);
+            sandbag.SetActive(false);
+        } else if (taskId < 12)
+        {
+            soccer.SetActive(false);
+            sandbag.SetActive(true);
+        } else
+        {
+            soccer.SetActive(false);
+            sandbag.SetActive(false);
+            actionPeriod = 20;
+            actions = 1;
+        }
+    }
+
     void Update()
     {
+        updateEnvironment();
+
+        if (rest && taskId < tasks.Length && Input.GetKey(KeyCode.S))
+        {
+            rest = false;
+        }
+
         if (recording == true && getEscapeTime() > actionPeriod)
         {
             recording = false;
             actionId++;
-            if (actionId == actions * 2)
+            if (actionId == actions)
             {
                 actionId = 0;
                 taskId++;
+                rest = true;
             }
         }
 
         if (recording == false)
         {
-            if (taskId == tasks.Length)
+            if (rest)
             {
-                taskScreen.text = "Experiment complete.";
-            } else
-            {
-                if (actionId == 0)
+                if (taskId == tasks.Length)
                 {
+                    taskScreen.text = "Experiment complete.";
+                } else
+                {
+                    taskScreen.text = "Practice: " + tasks[taskId];
                     skeleton.SetActive(true);
                     skeleton.GetComponent<Show>().setMotion(tasks[taskId]);
                 }
-                else
-                {
-                    skeleton.SetActive(false);
-                }
-                taskScreen.text = "Next action : " + tasks[taskId] + " (" + actionId + ")";
+            } else
+            {
+                skeleton.SetActive(false);
+                taskScreen.text = "Next action: " + tasks[taskId] + " (" + actionId + ")";
             }
         } else
         {
             skeleton.SetActive(false);
-            taskScreen.text = "Recording : " + tasks[taskId] + " (" + actionId + ")";
+            taskScreen.text = "Recording: " + tasks[taskId] + " (" + actionId + ")";
         }
-        leftCube.GetComponent<MeshRenderer>().material.color = (actionId % 2 == 0) ? Color.red : Color.white;
-        rightCube.GetComponent<MeshRenderer>().material.color = (actionId % 2 == 1) ? Color.red : Color.white;
 
         float schedule = getEscapeTime() / actionPeriod;
         timePanel.GetComponent<RectTransform>().sizeDelta = new Vector2(timePanelBackground.rect.width * schedule, timePanelBackground.rect.height);
@@ -89,7 +115,7 @@ public class TaskManager : MonoBehaviour
 
     static public void start()
     {
-        if (recording == false && taskId != instance.tasks.Length)
+        if (rest == false && recording == false && taskId != instance.tasks.Length)
         {
             recording = true;
             startTime = Time.time;
@@ -103,8 +129,7 @@ public class TaskManager : MonoBehaviour
             actionId--;
             if (actionId == -1)
             {
-                actionId = instance.actions * 2 - 1;
-                taskId--;
+                actionId = 0;
             }
         }
     }
@@ -116,6 +141,6 @@ public class TaskManager : MonoBehaviour
 
     static public string getTaskInfo()
     {
-        return instance.tasks[taskId] + "_" + ((actionId % 2 == 0) ? "left" : "right") + " " + actionId / 2 + " " + getEscapeTime();
+        return instance.tasks[taskId] + " " + actionId + " " + getEscapeTime();
     }
 }
