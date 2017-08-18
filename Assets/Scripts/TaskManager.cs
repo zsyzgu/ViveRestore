@@ -18,7 +18,7 @@ public class TaskManager : MonoBehaviour
     public GameObject soccer;
     public GameObject sandbag;
 
-    static private int taskId = 0;
+    static private int taskId = 11;
     static private int actionId = 0;
     static private bool recording = false;
     static private bool rest = true;
@@ -44,6 +44,10 @@ public class TaskManager : MonoBehaviour
         {
             soccer.SetActive(false);
             sandbag.SetActive(true);
+        } else if (taskId < 14)
+        {
+            soccer.SetActive(false);
+            sandbag.SetActive(false);
         } else
         {
             soccer.SetActive(false);

@@ -10,11 +10,15 @@ public class Show : MonoBehaviour {
     StreamReader sr;
     
 	void Start () {
-
+        
     }
 
     public void setMotion(string motionName)
     {
+        if (this.motionName != motionName)
+        {
+            sr = null;
+        }
         this.motionName = motionName;
     }
 	
@@ -40,7 +44,7 @@ public class Show : MonoBehaviour {
         {
             cubes[cnt].transform.position = new Vector3(float.Parse(tags[i + 0]), float.Parse(tags[i + 1]), float.Parse(tags[i + 2])) + transform.position;
             cubes[cnt].transform.LookAt(new Vector3(float.Parse(tags[i + 3]), float.Parse(tags[i + 4]), float.Parse(tags[i + 5])) + transform.position);
-            //cubes[cnt].transform.LookAt(new Vector3(float.Parse(tags[i + 6]), float.Parse(tags[i + 7]), float.Parse(tags[i + 8])), Vector3.forward);
+            //cubes[cnt].transform.LookAt(new Vector3(float.Parse(tags[i + 6]), float.Parse(tags[i + 7]), float.Parse(tags[i + 8])) + transform.position);
             cnt++;
         }
     }
