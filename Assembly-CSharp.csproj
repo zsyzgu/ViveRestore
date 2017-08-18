@@ -48,6 +48,7 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\DataCollect.cs" />
      <Compile Include="Assets\Scripts\FileLogger.cs" />
+     <Compile Include="Assets\Scripts\Limb.cs" />
      <Compile Include="Assets\Scripts\Show.cs" />
      <Compile Include="Assets\Scripts\TaskManager.cs" />
      <Compile Include="Assets\Scripts\Utility.cs" />
