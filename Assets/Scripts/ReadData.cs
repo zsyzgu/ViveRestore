@@ -4,31 +4,50 @@ using UnityEngine;
 using System.IO;
 
 public class ReadData : MonoBehaviour {
-    class X_POS
+    class POS
     {
-        public static int N = 27;
-        public float[] vec = new float[N];
-        public static X_POS operator - (X_POS x1, X_POS x2)
+        public int N;
+        public float[] vec;
+        public void init(int N)
         {
-            for (int i = 0; i < N; i++)
+            this.N = N;
+            vec = new float[N];
+        }
+
+        public static POS operator - (POS p1, POS p2)
+        {
+            for (int i = 0; i < p1.N; i++)
             {
-                x1.vec[i] -= x2.vec[i];
+                p1.vec[i] -= p2.vec[i];
             }
-            return x1;
+            return p1;
+        }
+
+        public static float dist(POS p1, POS p2)
+        {
+            float sum = 0;
+            for (int i = 0; i < p1.N; i++)
+            {
+                sum += (p1.vec[i] - p2.vec[i]) * (p1.vec[i] - p2.vec[i]);
+            }
+            float ret = Mathf.Sqrt(sum);
+            return ret;
         }
     }
 
-    class Y_POS
+    class X_POS : POS
     {
-        public static int N = 45;
-        public float[] vec = new float[N];
-        public static Y_POS operator - (Y_POS y1, Y_POS y2)
+        public X_POS()
         {
-            for (int i = 0; i < N; i++)
-            {
-                y1.vec[i] -= y2.vec[i];
-            }
-            return y1;
+            init(27);
+        }
+    }
+
+    class Y_POS : POS
+    {
+        public Y_POS()
+        {
+            init(45);
         }
     }
 
@@ -44,22 +63,22 @@ public class ReadData : MonoBehaviour {
         {
             timestamp.Add(float.Parse(tags[2]));
             X_POS x = new X_POS();
-            for (int i = 0; i < X_POS.N; i++)
+            for (int i = 0; i < x.N; i++)
             {
                 x.vec[i] = float.Parse(tags[3 + i]);
             }
             Y_POS y = new Y_POS();
-            for (int i = 0; i < Y_POS.N; i++)
+            for (int i = 0; i < y.N; i++)
             {
-                y.vec[i] = float.Parse(tags[3 + X_POS.N + i]);
+                y.vec[i] = float.Parse(tags[3 + x.N + i]);
             }
             if (timestamp.Count == 1)
             {
                 xStart = x;
                 yStart = y;
             }
-            x = x - xStart;
-            y = y - yStart;
+            x = (X_POS)(x - xStart);
+            y = (Y_POS)(y - yStart);
             xPos.Add(x);
             yPos.Add(y);
         }
