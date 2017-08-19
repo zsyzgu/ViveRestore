@@ -51,6 +51,7 @@
      <Compile Include="Assets\Scripts\FromTrackers.cs" />
      <Compile Include="Assets\Scripts\IKHandling.cs" />
      <Compile Include="Assets\Scripts\Limb.cs" />
+     <Compile Include="Assets\Scripts\ReadData.cs" />
      <Compile Include="Assets\Scripts\Show.cs" />
      <Compile Include="Assets\Scripts\TaskManager.cs" />
      <Compile Include="Assets\Scripts\Utility.cs" />
