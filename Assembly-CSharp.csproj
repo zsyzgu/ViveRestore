@@ -46,12 +46,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Data.cs" />
      <Compile Include="Assets\Scripts\DataCollect.cs" />
      <Compile Include="Assets\Scripts\FileLogger.cs" />
      <Compile Include="Assets\Scripts\FromTrackers.cs" />
      <Compile Include="Assets\Scripts\IKHandling.cs" />
      <Compile Include="Assets\Scripts\Limb.cs" />
-     <Compile Include="Assets\Scripts\ReadData.cs" />
+     <Compile Include="Assets\Scripts\MainControl.cs" />
      <Compile Include="Assets\Scripts\Show.cs" />
      <Compile Include="Assets\Scripts\TaskManager.cs" />
      <Compile Include="Assets\Scripts\Utility.cs" />

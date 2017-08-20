@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-public class ReadData : MonoBehaviour {
-    class POS
+public class Data : MonoBehaviour {
+    public class POS
     {
         public int N;
         public float[] vec;
@@ -33,9 +33,26 @@ public class ReadData : MonoBehaviour {
             float ret = Mathf.Sqrt(sum);
             return ret;
         }
+
+        public static float meanDist(POS p1, POS p2)
+        {
+            float sum = 0;
+            int cnt = 0;
+            for (int i = 0; i < p1.N; i += 9)
+            {
+                float d2 = 0;
+                d2 += (p1.vec[i + 0] - p2.vec[i + 0]) * (p1.vec[i + 0] - p2.vec[i + 0]);
+                d2 += (p1.vec[i + 1] - p2.vec[i + 1]) * (p1.vec[i + 1] - p2.vec[i + 1]);
+                d2 += (p1.vec[i + 2] - p2.vec[i + 2]) * (p1.vec[i + 2] - p2.vec[i + 2]);
+                sum += Mathf.Sqrt(d2);
+                cnt++;
+            }
+            sum /= cnt;
+            return sum;
+        }
     }
 
-    class X_POS : POS
+    public class X_POS : POS
     {
         public X_POS()
         {
@@ -43,7 +60,7 @@ public class ReadData : MonoBehaviour {
         }
     }
 
-    class Y_POS : POS
+    public class Y_POS : POS
     {
         public Y_POS()
         {
@@ -51,7 +68,7 @@ public class ReadData : MonoBehaviour {
         }
     }
 
-    class Motion
+    public class Motion
     {
         public List<float> timestamp = new List<float>();
         public List<X_POS> xPos = new List<X_POS>();
