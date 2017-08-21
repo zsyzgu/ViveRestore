@@ -146,7 +146,7 @@ public class DataCollect : MonoBehaviour
     private float endThreshold = 0.5f;
     private float stdBeginTimePer = 0.2f;
     private float stdBeginTimeInterval = 1f;
-    private float homeThreshold = 0.2f;
+    private float homeThreshold = 0.1f;
     private float movingTime = 0f;
     private Data.X_POS lastXPos = new Data.X_POS();
     private float stopTime = 0;
