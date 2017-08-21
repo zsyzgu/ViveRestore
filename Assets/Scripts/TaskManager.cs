@@ -9,6 +9,7 @@ public class TaskManager : MonoBehaviour
     static private TaskManager instance;
 
     public Text taskScreen;
+    public Text errorScreen;
     public RectTransform timePanel;
     public RectTransform timePanelBackground;
     public string[] tasks;
@@ -52,7 +53,7 @@ public class TaskManager : MonoBehaviour
         {
             soccer.SetActive(false);
             sandbag.SetActive(false);
-            actionPeriod = 30;
+            actionPeriod = 20;
             actions = 1;
         }
     }
@@ -69,13 +70,6 @@ public class TaskManager : MonoBehaviour
         if (recording == true && getEscapeTime() > actionPeriod)
         {
             recording = false;
-            actionId++;
-            if (actionId == actions)
-            {
-                actionId = 0;
-                taskId++;
-                rest = true;
-            }
         }
 
         if (recording == false)
@@ -87,7 +81,7 @@ public class TaskManager : MonoBehaviour
                     taskScreen.text = "Experiment complete.";
                 } else
                 {
-                    taskScreen.text = "Practice: " + tasks[taskId];
+                    taskScreen.text = "Calibration: " + tasks[taskId];
                     skeleton.SetActive(true);
                     skeleton.GetComponent<Show>().setMotion(tasks[taskId]);
                 }
@@ -106,7 +100,7 @@ public class TaskManager : MonoBehaviour
         timePanel.GetComponent<RectTransform>().sizeDelta = new Vector2(timePanelBackground.rect.width * schedule, timePanelBackground.rect.height);
     }
 
-    static private float getEscapeTime()
+    static public float getEscapeTime()
     {
         if (recording)
         {
@@ -119,10 +113,30 @@ public class TaskManager : MonoBehaviour
 
     static public void start()
     {
+        if (rest == true)
+        {
+
+        }
         if (rest == false && recording == false && taskId != instance.tasks.Length)
         {
-            recording = true;
-            startTime = Time.time;
+            if (instance.errorScreen.text == "")
+            {
+                recording = true;
+                startTime = Time.time;
+            } else
+            {
+                if (instance.errorScreen.text == "ok")
+                {
+                    actionId++;
+                }
+                instance.errorScreen.text = "";
+                if (actionId == instance.actions)
+                {
+                    actionId = 0;
+                    taskId++;
+                    rest = true;
+                }
+            }
         }
     }
     
@@ -141,6 +155,21 @@ public class TaskManager : MonoBehaviour
     static public bool isRecording()
     {
         return recording;
+    }
+
+    static public bool isRest()
+    {
+        return rest;
+    }
+
+    static public bool isOneAction()
+    {
+        return instance.actions == 1;
+    }
+
+    static public float getActionPeriod()
+    {
+        return instance.actionPeriod;
     }
 
     static public string getTaskInfo()
