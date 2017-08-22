@@ -59,7 +59,7 @@ public class TaskManager : MonoBehaviour
     }
 
     void Update()
-    {
+    {   
         updateEnvironment();
 
         if (rest && taskId < tasks.Length && Input.GetKey(KeyCode.S))

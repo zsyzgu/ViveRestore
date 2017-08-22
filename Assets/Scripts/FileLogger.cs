@@ -33,7 +33,7 @@ public class FileLogger : MonoBehaviour
     {
         if (writer == null)
         {
-            writer = File.CreateText("data/" + logger.userName + ".txt");
+            writer = File.CreateText("data/" + logger.userName + "_" + Random.Range(0, 1000000000) + ".txt");
         }
         writer.WriteLine(info);
         writer.Flush();
