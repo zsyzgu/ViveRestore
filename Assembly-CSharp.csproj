@@ -49,6 +49,7 @@
      <Compile Include="Assets\Scripts\Data.cs" />
      <Compile Include="Assets\Scripts\DataCollect.cs" />
      <Compile Include="Assets\Scripts\FileLogger.cs" />
+     <Compile Include="Assets\Scripts\FootController.cs" />
      <Compile Include="Assets\Scripts\FromTrackers.cs" />
      <Compile Include="Assets\Scripts\IKHandling.cs" />
      <Compile Include="Assets\Scripts\Limb.cs" />
