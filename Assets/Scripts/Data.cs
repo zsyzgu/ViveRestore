@@ -280,6 +280,18 @@ public class Data : MonoBehaviour {
             yPos.Add(y);
         }
 
+        public void formMotion(ControlledHuman.Record record, int startIndex, int endIndex)
+        {
+            int currIndex = record.getIndex();
+            for (int i = startIndex; i <= endIndex; i++)
+            {
+                timestamp.Add(record.getTimestamp(currIndex - i) - record.getTimestamp(currIndex - startIndex));
+                xPos.Add(record.getXPos(currIndex - i));
+                yPos.Add(record.getYPos(currIndex - i));
+            }
+            calnSpeed();
+        }
+
         private void segment()
         {
             int startIndex = -1;
@@ -313,13 +325,13 @@ public class Data : MonoBehaviour {
                 {
                     if (startIndex == -1)
                     {
-                        startIndex = t;
+                        startIndex = t - moveFrame;
                     }
                 } else
                 {
                     if (startIndex != -1 && endIndex == -1)
                     {
-                        endIndex = t;
+                        endIndex = t - stopFrame;
                     }
                 }
             }
@@ -380,7 +392,14 @@ public class Data : MonoBehaviour {
             return new X_POS(xSpeed[intT] * (t - intT) + xSpeed[intT + 1] * (intT + 1 - t));
         }
 
-        private Y_POS getYPos(float t)
+        public void resetMotion()
+        {
+            predictFrame = 1f;
+            dtw = new float[timestamp.Count];
+        }
+
+
+        public Y_POS getYPos(float t)
         {
             if (t >= timestamp.Count - 1)
             {
@@ -390,13 +409,7 @@ public class Data : MonoBehaviour {
             return new Y_POS(yPos[intT] * (t - intT) + yPos[intT + 1] * (intT + 1 - t));
         }
 
-        public void resetMotion()
-        {
-            predictFrame = 1f;
-            dtw = new float[timestamp.Count];
-        }
-
-        public Y_POS predictMotion(FootController.Record record)
+        public float predictMotionFrame(ControlledHuman.Record record)
         {
             float dtwFrame = calnFrame(record);
             predictFrame += 1f;
@@ -407,28 +420,10 @@ public class Data : MonoBehaviour {
             {
                 predictFrame -= 0.33f;
             }
-            return getYPos(predictFrame);
-            /*float nFrame = predictFrame + 1f;
-            float minDist = 1e9f;
-
-            float[] intervals = { 0.5f, 0.67f, 0.8f, 1f, 1.25f, 1.5f, 2f };
-            for (int i = 0; i < intervals.Length; i++)
-            {
-                float nT = predictFrame + intervals[i];
-                X_POS nX = getXSpeed(nT);
-                float dist = X_POS.handsDistInWorldSpace(nX, record.getXPos(0));
-                if (dist < minDist)
-                {
-                    minDist = dist;
-                    nFrame = nT;
-                }
-            }
-            
-            predictFrame = nFrame;
-            return getYPos(predictFrame);*/
+            return predictFrame;
         }
 
-        private int calnFrame(FootController.Record record)
+        private int calnFrame(ControlledHuman.Record record)
         {
             if (record.getIndex() < 1)
             {
@@ -467,6 +462,30 @@ public class Data : MonoBehaviour {
                 }
             }
             return frame;
+        }
+
+        public void output(string motionName)
+        {
+            StreamWriter sw = File.CreateText("Std/cali_" + motionName + ".txt");
+            
+            for (int t = 0; t < timestamp.Count; t++)
+            {
+                string info = timestamp[t].ToString();
+
+                for (int i = 0; i < xPos[t].N; i++)
+                {
+                    info += " " + xPos[t].vec[i].ToString();
+                }
+
+                for (int i = 0; i < yPos[t].N; i++)
+                {
+                    info += " " + yPos[t].vec[i].ToString();
+                }
+
+                sw.WriteLine(info);
+            }
+
+            sw.Close();
         }
     }
 
