@@ -14,7 +14,7 @@ public class FootController : MonoBehaviour {
     public GameObject rightKnee;
     public GameObject waist;
 
-    class Record
+    public class Record
     {
         const int RECORD_FRAMS = 10000;
 
@@ -69,11 +69,11 @@ public class FootController : MonoBehaviour {
     }
     Record record = new Record();
 
-    class MovingDetect
+    public class MovingDetect
     {
         const float SPEED_THRESHOLD = 0.2f;
         const float BEGIN_DURATION = 0.1f;
-        const float END_DURATION = 0.5f;
+        const float END_DURATION = 0.2f;
 
         private Vector3 lastLeftHandPos;
         private Vector3 lastRightHandPos;
@@ -93,7 +93,8 @@ public class FootController : MonoBehaviour {
         {
             if (record.getIndex() >= 1)
             {
-                float speed = Data.X_POS.handsDist(record.getXPos(0), record.getXPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1));
+                float speed = Mathf.Min(Data.X_POS.handsDistRelatedToHead(record.getXPos(0), record.getXPos(1)), Data.X_POS.handsDistInWorldSpace(record.getXPos(0), record.getXPos(1))) / (record.getTimestamp(0) - record.getTimestamp(1));
+
                 if (speed >= SPEED_THRESHOLD)
                 {
                     moveFrames++;
@@ -133,24 +134,35 @@ public class FootController : MonoBehaviour {
     MovingDetect movingDetect = new MovingDetect();
 
     private Dictionary<string, Data.Motion> stdMotions = new Dictionary<string, Data.Motion>();
-    private void loadStdMotion()
+    private Data.Motion calibratedMotion = null;
+    private Data.Motion stdMotion = null;
+
+    private Data.Motion loadStdMotion(string name)
+    {
+        Data.Motion motion = new Data.Motion();
+        string fileName = "Std/" + name + ".txt";
+        StreamReader sr = File.OpenText(fileName);
+        string line;
+        while ((line = sr.ReadLine()) != null)
+        {
+            string[] tags = line.Split(' ');
+            motion.readTags(tags);
+        }
+        motion.preprocess();
+        return motion;
+    }
+
+    private void loadStdMotions()
     {
         foreach (string name in motionName)
         {
-            Data.Motion motion = new Data.Motion();
-            string fileName = "Std/" + name + ".txt";
-            StreamReader sr = File.OpenText(fileName);
-            string line;
-            while ((line = sr.ReadLine()) != null)
-            {
-                string[] tags = line.Split(' ');
-                motion.readTags(tags);
-            }
-            motion.segment();
-            stdMotions[name] = motion;
+            stdMotions[name] = loadStdMotion(name);
         }
+        calibratedMotion = loadStdMotion("calibration");
+        stdMotion = stdMotions["inner_kick_right"];
     }
 
+    private const float smoothK = 0.8f;
     private void setLowerBody(Data.Y_POS yPos)
     {
         List<GameObject> objs = new List<GameObject>();
@@ -162,14 +174,14 @@ public class FootController : MonoBehaviour {
         int cnt = 0;
         for (int i = 0; i < yPos.N; i += 9)
         {
-            objs[cnt].transform.position = new Vector3(yPos.vec[i + 0], yPos.vec[i + 1], yPos.vec[i + 2]);
+            objs[cnt].transform.position = objs[cnt].transform.position * smoothK + new Vector3(yPos.vec[i + 0], yPos.vec[i + 1], yPos.vec[i + 2]) * (1 - smoothK);
             objs[cnt].transform.LookAt(new Vector3(yPos.vec[i + 3], yPos.vec[i + 4], yPos.vec[i + 5]));
             cnt++;
         }
     }
 
 	void Start () {
-        loadStdMotion();
+        loadStdMotions();
 	}
 	
 	void Update () {
@@ -180,19 +192,18 @@ public class FootController : MonoBehaviour {
         bool moving = movingDetect.isMoving(record);
         if (moving)
         {
-            float duration = record.getTimestamp(0) - record.getTimestamp(record.getIndex() - movingDetect.getStartIndex());
-            Data.Motion motion = stdMotions["long_kick_right"];
-            int t = motion.startIndex;
-            while (t + 1 <= motion.endIndex && motion.timestamp[t + 1] - motion.timestamp[motion.startIndex] <= duration)
+            /*float duration = record.getTimestamp(0) - record.getTimestamp(record.getIndex() - movingDetect.getStartIndex());
+            int t = 0;
+            while (t + 1 < stdMotion.timestamp.Count && stdMotion.timestamp[t + 1] <= duration)
             {
                 t++;
-            }
-            Data.Y_POS stdYPos = motion.yPos[t];
-            setLowerBody(new Data.Y_POS(stdYPos + motion.yStart - motion.xStart.getHeadPos() + movingDetect.getStartHeadPos()));
+            }*/
+            Data.Y_POS predictYPos = stdMotion.predictMotion(record);
+            setLowerBody(new Data.Y_POS(predictYPos + stdMotion.yStart));
         } else
         {
-            Data.Motion motion = stdMotions["long_kick_right"];
-            setLowerBody(new Data.Y_POS(motion.yStart - motion.xStart.getHeadPos() + head.transform.position));
+            stdMotion.resetMotion();
+            setLowerBody(stdMotion.yStart);
         }
 	}
 }

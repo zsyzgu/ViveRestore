@@ -45,6 +45,26 @@ public class Data : MonoBehaviour {
             return p;
         }
 
+        public static POS operator / (POS p1, float k)
+        {
+            POS p = new POS(p1.N);
+            for (int i = 0; i < p.N; i++)
+            {
+                p.vec[i] = p1.vec[i] / k;
+            }
+            return p;
+        }
+
+        public static POS operator * (POS p1, float k)
+        {
+            POS p = new POS(p1.N);
+            for (int i = 0; i < p.N; i++)
+            {
+                p.vec[i] = p1.vec[i] * k;
+            }
+            return p;
+        }
+
         public static POS operator + (POS p, Vector3 v)
         {
             POS ret = new POS(p.N);
@@ -154,12 +174,24 @@ public class Data : MonoBehaviour {
             formPos(objs);
         }
 
+        /*public static float dtwCost(X_POS p1, X_POS p2)
+        {
+            float sum = 0;
+            for (int i = 9; i < p1.N; i += 9)
+            {
+                float v1 = Mathf.Sqrt(p1.vec[i + 0] * p1.vec[i + 0] + p1.vec[i + 1] * p1.vec[i + 1] + p1.vec[i + 2] * p1.vec[i + 2]);
+                float v2 = Mathf.Sqrt(p2.vec[i + 0] * p2.vec[i + 0] + p2.vec[i + 1] * p2.vec[i + 1] + p2.vec[i + 2] * p2.vec[i + 2]);
+                sum += Mathf.Abs(v1 - v2);
+            }
+            return sum;
+        }*/
+
         public Vector3 getHeadPos()
         {
             return new Vector3(vec[0], vec[1], vec[2]);
         }
 
-        public static float handsDist(X_POS p1, X_POS p2)
+        public static float handsDistRelatedToHead(X_POS p1, X_POS p2)
         {
             float sum = 0;
             int cnt = 0;
@@ -169,6 +201,23 @@ public class Data : MonoBehaviour {
                 d2 += Mathf.Pow((p1.vec[i + 0] - p1.vec[0]) - (p2.vec[i + 0] - p2.vec[0]), 2);
                 d2 += Mathf.Pow((p1.vec[i + 1] - p1.vec[1]) - (p2.vec[i + 1] - p2.vec[1]), 2);
                 d2 += Mathf.Pow((p1.vec[i + 2] - p1.vec[2]) - (p2.vec[i + 2] - p2.vec[2]), 2);
+                sum += Mathf.Sqrt(d2);
+                cnt++;
+            }
+            sum /= cnt;
+            return sum;
+        }
+
+        public static float handsDistInWorldSpace(X_POS p1, X_POS p2)
+        {
+            float sum = 0;
+            int cnt = 0;
+            for (int i = 9; i < p1.N; i += 9)
+            {
+                float d2 = 0;
+                d2 += Mathf.Pow(p1.vec[i + 0] - p2.vec[i + 0], 2);
+                d2 += Mathf.Pow(p1.vec[i + 1] - p2.vec[i + 1], 2);
+                d2 += Mathf.Pow(p1.vec[i + 2] - p2.vec[i + 2], 2);
                 sum += Mathf.Sqrt(d2);
                 cnt++;
             }
@@ -213,13 +262,17 @@ public class Data : MonoBehaviour {
 
     public class Motion
     {
+        const float SPEED_THRESHOLD = 0.2f;
+        const float BEGIN_DURATION = 0.1f;
+        const float END_DURATION = 0.5f;
         public List<float> timestamp = new List<float>();
         public List<X_POS> xPos = new List<X_POS>();
         public List<Y_POS> yPos = new List<Y_POS>();
         public X_POS xStart = new X_POS();
         public Y_POS yStart = new Y_POS();
-        public int startIndex = -1;
-        public int endIndex = -1;
+        private List<X_POS> xSpeed = new List<X_POS>();
+        private List<Y_POS> ySpeed = new List<Y_POS>();
+        private float predictFrame = 0f;
 
         public void readTags(string[] tags)
         {
@@ -234,26 +287,19 @@ public class Data : MonoBehaviour {
             {
                 y.vec[i] = float.Parse(tags[1 + x.N + i]);
             }
-            if (timestamp.Count == 1)
-            {
-                xStart = x;
-                yStart = y;
-            }
-            x = new X_POS(x - xStart);
-            y = new Y_POS(y - yStart);
             xPos.Add(x);
             yPos.Add(y);
         }
 
-        public void segment()
+        private void segment()
         {
+            int startIndex = -1;
+            int endIndex = -1;
+
             int T = timestamp.Count;
             int moveFrame = 0;
             int stopFrame = 0;
             bool moving = false;
-            const float SPEED_THRESHOLD = 0.2f;
-            const float BEGIN_DURATION = 0.1f;
-            const float END_DURATION = 0.5f;
             for (int t = 1; t < T; t++)
             {
                 float speed = POS.meanDist(xPos[t], xPos[t - 1]) / (timestamp[t] - timestamp[t - 1]);
@@ -288,7 +334,146 @@ public class Data : MonoBehaviour {
                     }
                 }
             }
+
+            if (startIndex == -1)
+            {
+                Debug.Log("segment error (begin)");
+                startIndex = 0;
+            }
+            if (endIndex == -1)
+            {
+                Debug.Log("segment error (end)");
+                endIndex = timestamp.Count - 1;
+            }
+
+            timestamp = timestamp.GetRange(startIndex, endIndex - startIndex + 1);
+            xPos = xPos.GetRange(startIndex, endIndex - startIndex + 1);
+            yPos = yPos.GetRange(startIndex, endIndex - startIndex + 1);
+            xStart = xPos[0];
+            yStart = yPos[0];
+            T = timestamp.Count;
+            float startTime = timestamp[0];
+            for (int t = 0; t < T; t++)
+            {
+                xPos[t] = new X_POS(xPos[t] - xStart);
+                yPos[t] = new Y_POS(yPos[t] - yStart);
+                timestamp[t] -= startTime;
+            }
         }
+
+        private void calnSpeed()
+        {
+            xSpeed.Add(new X_POS());
+            for (int t = 1; t < timestamp.Count; t++)
+            {
+                xSpeed.Add(new X_POS((xPos[t] - xPos[t - 1]) / (timestamp[t] - timestamp[t - 1])));
+            }
+            ySpeed.Add(new Y_POS());
+            for (int t = 1; t < timestamp.Count; t++)
+            {
+                ySpeed.Add(new Y_POS((yPos[t] - yPos[t - 1]) / (timestamp[t] - timestamp[t - 1])));
+            }
+        }
+
+        public void preprocess()
+        {
+            segment();
+            calnSpeed();
+        }
+
+        private X_POS getXSpeed(float t)
+        {
+            if (t >= timestamp.Count - 1)
+            {
+                return xSpeed[timestamp.Count - 1];
+            }
+            int intT = Mathf.FloorToInt(t);
+            return new X_POS(xSpeed[intT] * (t - intT) + xSpeed[intT + 1] * (intT + 1 - t));
+        }
+
+        private Y_POS getYPos(float t)
+        {
+            if (t >= timestamp.Count - 1)
+            {
+                return yPos[timestamp.Count - 1];
+            }
+            int intT = Mathf.FloorToInt(t);
+            return new Y_POS(yPos[intT] * (t - intT) + yPos[intT + 1] * (intT + 1 - t));
+        }
+
+        public void resetMotion()
+        {
+            predictFrame = 1f;
+        }
+
+        public Y_POS predictMotion(FootController.Record record)
+        {
+            float nFrame = predictFrame + 1f;
+            float minDist = 1e9f;
+
+            float[] intervals = { 0.5f, 0.67f, 0.8f, 1f, 1.25f, 1.5f, 2f };
+            for (int i = 0; i < intervals.Length; i++)
+            {
+                float nT = predictFrame + intervals[i];
+                X_POS nX = getXSpeed(nT);
+                float dist = X_POS.handsDistInWorldSpace(nX, record.getXPos(0));
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    nFrame = nT;
+                }
+            }
+
+            Debug.Log(nFrame - predictFrame);
+            predictFrame = nFrame;
+            return getYPos(predictFrame);
+        }
+
+        /*public void initDtw()
+        {
+            dtw = new float[timestamp.Count];
+        }
+
+        public int calnFrame(FootController.Record record)
+        {
+            if (record.getIndex() < 1)
+            {
+                return 0;
+            }
+            X_POS xSpeed = new X_POS((record.getXPos(0) - record.getXPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1)));
+            if (dtw[1] == 0f)
+            {
+                dtw[1] = X_POS.dtwCost(xSpeed, getXSpeed(1));
+                return 1;
+            }
+            float[] nDtw = new float[timestamp.Count];
+            for (int t = 1; t < timestamp.Count; t++)
+            {
+                if (nDtw[t - 1] != 0f && (nDtw[t] == 0f || nDtw[t - 1] < nDtw[t]))
+                {
+                    nDtw[t] = nDtw[t - 1];
+                }
+                if (dtw[t - 1] != 0f && (nDtw[t] == 0f || dtw[t - 1] < nDtw[t]))
+                {
+                    nDtw[t] = dtw[t - 1];
+                }
+                if (dtw[t] != 0f && (nDtw[t] == 0f || dtw[t] < nDtw[t]))
+                {
+                    nDtw[t] = dtw[t];
+                }
+                nDtw[t] += X_POS.dtwCost(xSpeed, getXSpeed(t));
+            }
+            dtw = nDtw;
+            int frame = 1;
+            for (int t = 2; t< timestamp.Count; t++)
+            {
+                if (dtw[t] != 0 && dtw[t] < dtw[frame])
+                {
+                    frame = t;
+                }
+            }
+            return frame;
+        }*/
     }
 
     static Dictionary<string, List<Motion>> motions = new Dictionary<string, List<Motion>>();
@@ -319,8 +504,7 @@ public class Data : MonoBehaviour {
     }
     
 	void Start () {
-        //readFile("Data/gyz.txt");
-        //Debug.Log(motions["knee_lift_left"][0].timestamp[2]);
+
 	}
 	
 	void Update () {
