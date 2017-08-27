@@ -12,12 +12,14 @@ public class CaliControl : ControlledHuman {
     private CaliStdMotion caliStdMotion;
     private TimePanelControl timePanelControl;
 
-    private string currMotionName = "side_kick_right";
+    //private string currMotionName = "side_kick_right";
+    private string currMotionName = "long_kick_right";
 
-	void Start () {
+    void Start () {
         caliStdMotion = stdSkeleton.GetComponent<CaliStdMotion>();
         timePanelControl = canvas.GetComponent<TimePanelControl>();
         stdMotion = loadStdMotion(currMotionName);
+        caliStdMotion.setMotion(currMotionName);
 	}
 
     private void updateMoveScreen()
@@ -43,7 +45,7 @@ public class CaliControl : ControlledHuman {
         currMotion = new Data.Motion();
         currMotion.formMotion(record, startIndex, endIndex);
         debugScreen.text = Data.Motion.xPosDistance(currMotion, stdMotion).ToString();
-        Debug.Log(Data.Motion.xPosDistance(currMotion, stdMotion));
+        caliStdMotion.setMotion(currMotionName);
     }
 	
 	new void Update () {
@@ -53,7 +55,7 @@ public class CaliControl : ControlledHuman {
         {
             startIndex = record.getIndex();
             timePanelControl.startTimeKeeping();
-            caliStdMotion.startMotion(currMotionName);
+            caliStdMotion.startMotion();
         }
 
         if (Utility.isRestart())
