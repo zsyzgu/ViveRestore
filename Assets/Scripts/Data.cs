@@ -174,18 +174,6 @@ public class Data : MonoBehaviour {
             formPos(objs);
         }
 
-        /*public static float dtwCost(X_POS p1, X_POS p2)
-        {
-            float sum = 0;
-            for (int i = 9; i < p1.N; i += 9)
-            {
-                float v1 = Mathf.Sqrt(p1.vec[i + 0] * p1.vec[i + 0] + p1.vec[i + 1] * p1.vec[i + 1] + p1.vec[i + 2] * p1.vec[i + 2]);
-                float v2 = Mathf.Sqrt(p2.vec[i + 0] * p2.vec[i + 0] + p2.vec[i + 1] * p2.vec[i + 1] + p2.vec[i + 2] * p2.vec[i + 2]);
-                sum += Mathf.Abs(v1 - v2);
-            }
-            return sum;
-        }*/
-
         public Vector3 getHeadPos()
         {
             return new Vector3(vec[0], vec[1], vec[2]);
@@ -273,6 +261,7 @@ public class Data : MonoBehaviour {
         private List<X_POS> xSpeed = new List<X_POS>();
         private List<Y_POS> ySpeed = new List<Y_POS>();
         private float predictFrame = 0f;
+        private float[] dtw;
 
         public void readTags(string[] tags)
         {
@@ -404,11 +393,22 @@ public class Data : MonoBehaviour {
         public void resetMotion()
         {
             predictFrame = 1f;
+            dtw = new float[timestamp.Count];
         }
 
         public Y_POS predictMotion(FootController.Record record)
         {
-            float nFrame = predictFrame + 1f;
+            float dtwFrame = calnFrame(record);
+            predictFrame += 1f;
+            if (dtwFrame > predictFrame + 0.5f)
+            {
+                predictFrame += 0.5f;
+            } else if (dtwFrame < predictFrame - 0.33f)
+            {
+                predictFrame -= 0.33f;
+            }
+            return getYPos(predictFrame);
+            /*float nFrame = predictFrame + 1f;
             float minDist = 1e9f;
 
             float[] intervals = { 0.5f, 0.67f, 0.8f, 1f, 1.25f, 1.5f, 2f };
@@ -423,18 +423,12 @@ public class Data : MonoBehaviour {
                     nFrame = nT;
                 }
             }
-
-            Debug.Log(nFrame - predictFrame);
+            
             predictFrame = nFrame;
-            return getYPos(predictFrame);
+            return getYPos(predictFrame);*/
         }
 
-        /*public void initDtw()
-        {
-            dtw = new float[timestamp.Count];
-        }
-
-        public int calnFrame(FootController.Record record)
+        private int calnFrame(FootController.Record record)
         {
             if (record.getIndex() < 1)
             {
@@ -443,7 +437,7 @@ public class Data : MonoBehaviour {
             X_POS xSpeed = new X_POS((record.getXPos(0) - record.getXPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1)));
             if (dtw[1] == 0f)
             {
-                dtw[1] = X_POS.dtwCost(xSpeed, getXSpeed(1));
+                dtw[1] = X_POS.handsDistInWorldSpace(xSpeed, getXSpeed(1));
                 return 1;
             }
             float[] nDtw = new float[timestamp.Count];
@@ -461,7 +455,7 @@ public class Data : MonoBehaviour {
                 {
                     nDtw[t] = dtw[t];
                 }
-                nDtw[t] += X_POS.dtwCost(xSpeed, getXSpeed(t));
+                nDtw[t] += X_POS.handsDistInWorldSpace(xSpeed, getXSpeed(t));
             }
             dtw = nDtw;
             int frame = 1;
@@ -473,7 +467,7 @@ public class Data : MonoBehaviour {
                 }
             }
             return frame;
-        }*/
+        }
     }
 
     static Dictionary<string, List<Motion>> motions = new Dictionary<string, List<Motion>>();
@@ -508,6 +502,6 @@ public class Data : MonoBehaviour {
 	}
 	
 	void Update () {
-		
+
 	}
 }

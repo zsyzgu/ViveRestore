@@ -159,7 +159,7 @@ public class FootController : MonoBehaviour {
             stdMotions[name] = loadStdMotion(name);
         }
         calibratedMotion = loadStdMotion("calibration");
-        stdMotion = stdMotions["inner_kick_right"];
+        stdMotion = stdMotions["long_kick_right"];
     }
 
     private const float smoothK = 0.8f;
