@@ -10,20 +10,7 @@ public class FootController : ControlledHuman {
     private Data.Motion calibratedMotion = null;
     private Data.Motion stdMotion = null;
 
-    private Data.Motion loadStdMotion(string name)
-    {
-        Data.Motion motion = new Data.Motion();
-        string fileName = "Std/" + name + ".txt";
-        StreamReader sr = File.OpenText(fileName);
-        string line;
-        while ((line = sr.ReadLine()) != null)
-        {
-            string[] tags = line.Split(' ');
-            motion.readTags(tags);
-        }
-        motion.preprocess();
-        return motion;
-    }
+    private string currMotionName = "side_kick_right";
 
     private void loadStdMotions()
     {
@@ -31,8 +18,8 @@ public class FootController : ControlledHuman {
         {
             stdMotions[name] = loadStdMotion(name);
         }
-        calibratedMotion = loadStdMotion("calibration");
-        stdMotion = stdMotions["long_kick_right"];
+        calibratedMotion = loadStdMotion("cali_" + currMotionName);
+        stdMotion = stdMotions[currMotionName];
     }
 
     private const float smoothK = 0.8f;

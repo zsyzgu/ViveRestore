@@ -263,6 +263,20 @@ public class Data : MonoBehaviour {
         private float predictFrame = 0f;
         private float[] dtw;
 
+        public static float xPosDistance(Motion A, Motion B)
+        {
+            float ret = 0f;
+
+            int T = Mathf.Min(A.timestamp.Count, B.timestamp.Count);
+            for (int t = 0; t < T; t++)
+            {
+                ret += X_POS.handsDistInWorldSpace(A.xPos[t], B.xPos[t]);
+            }
+            ret /= T;
+
+            return ret;
+        }
+
         public void readTags(string[] tags)
         {
             timestamp.Add(float.Parse(tags[0]));
@@ -289,7 +303,7 @@ public class Data : MonoBehaviour {
                 xPos.Add(record.getXPos(currIndex - i));
                 yPos.Add(record.getYPos(currIndex - i));
             }
-            calnSpeed();
+            preprocess();
         }
 
         private void segment()

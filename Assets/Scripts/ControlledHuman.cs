@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 public class ControlledHuman : MonoBehaviour {
     public GameObject head;
@@ -71,7 +72,7 @@ public class ControlledHuman : MonoBehaviour {
     {
         const float SPEED_THRESHOLD = 0.2f;
         const float BEGIN_DURATION = 0.1f;
-        const float END_DURATION = 0.2f;
+        const float END_DURATION = 0.5f;
 
         private Vector3 lastLeftHandPos;
         private Vector3 lastRightHandPos;
@@ -135,5 +136,20 @@ public class ControlledHuman : MonoBehaviour {
         Data.Y_POS yPos = new Data.Y_POS(leftFoot, rightFoot, leftKnee, rightKnee, waist);
         record.recordData(timestamp, xPos, yPos);
         movingDetect.update(record);
+    }
+
+    protected Data.Motion loadStdMotion(string name)
+    {
+        Data.Motion motion = new Data.Motion();
+        string fileName = "Std/" + name + ".txt";
+        StreamReader sr = File.OpenText(fileName);
+        string line;
+        while ((line = sr.ReadLine()) != null)
+        {
+            string[] tags = line.Split(' ');
+            motion.readTags(tags);
+        }
+        motion.preprocess();
+        return motion;
     }
 }
