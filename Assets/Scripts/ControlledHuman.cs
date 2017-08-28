@@ -72,7 +72,7 @@ public class ControlledHuman : MonoBehaviour {
     {
         const float SPEED_THRESHOLD = 0.2f;
         const float BEGIN_DURATION = 0.1f;
-        const float END_DURATION = 0.5f;
+        const float END_DURATION = 0.2f;
 
         private Vector3 lastLeftHandPos;
         private Vector3 lastRightHandPos;
