@@ -61,6 +61,7 @@
      <Compile Include="Assets\Scripts\MainControl.cs" />
      <Compile Include="Assets\Scripts\MappingHuman.cs" />
      <Compile Include="Assets\Scripts\MoveDetect.cs" />
+     <Compile Include="Assets\Scripts\Net.cs" />
      <Compile Include="Assets\Scripts\Show.cs" />
      <Compile Include="Assets\Scripts\TaskManager.cs" />
      <Compile Include="Assets\Scripts\TimePanelControl.cs" />
