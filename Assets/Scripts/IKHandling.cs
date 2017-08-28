@@ -8,22 +8,20 @@ public class IKHandling : MonoBehaviour {
     public float IKWeight = 1f;
 
     public Transform head;
+    public Transform leftHand;
+    public Transform rightHand;
     public Transform leftFoot;
     public Transform rightFoot;
     public Transform leftKnee;
     public Transform rightKnee;
-    public Transform leftHand;
-    public Transform rightHand;
     public Transform waist;
     public float height = 1.58f;
     private float stdHeight = 1.58f;
-
-	// Use this for initialization
+    
 	void Start () {
         anim = GetComponent<Animator>();
 	}
 	
-	// Update is called once per frame
 	void Update () {
         transform.localScale = new Vector3(height / stdHeight, height / stdHeight, height / stdHeight);
 	}
@@ -54,6 +52,6 @@ public class IKHandling : MonoBehaviour {
         anim.SetIKRotation(AvatarIKGoal.RightHand, rightHand.rotation);
 
         anim.bodyPosition = waist.position;
-        anim.bodyRotation = waist.rotation;
+        //anim.bodyRotation = waist.rotation;
     }
 }
