@@ -18,7 +18,8 @@ public class BallKicking : MonoBehaviour {
         if (obj.name == "Ball")
         {
             float speed = footController.calnRightFootSpeed();
-            obj.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 2f * speed, 4f * speed));
+            obj.GetComponent<BallControl>().move();
+            obj.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 1.5f * speed, 3f * speed));
         }
     }
 }

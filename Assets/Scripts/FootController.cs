@@ -5,7 +5,6 @@ using System.IO;
 
 public class FootController : ControlledHuman {
     public string[] motionName;
-    public GameObject ball;
 
     private Dictionary<string, Data.Motion> stdMotions = new Dictionary<string, Data.Motion>();
     private Data.Motion calibratedMotion = null;
@@ -70,7 +69,6 @@ public class FootController : ControlledHuman {
         {
             calibratedMotion.resetMotion();
             setLowerBody(stdMotion.yStart);
-            ball.transform.position = new Vector3(0f, 0.11f, 0.5f);
         }
 	}
 }
