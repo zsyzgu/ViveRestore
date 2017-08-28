@@ -13,6 +13,7 @@ public class BallControl : MonoBehaviour {
     public void move()
     {
         stop = false;
+        stopFrame = 0;
     }
 
 	void Start () {
@@ -40,6 +41,6 @@ public class BallControl : MonoBehaviour {
             }
             lastPos = transform.position;
         }
-        scoreText.text = Vector3.Distance(originPos, transform.position).ToString() + " m";
+        scoreText.text = Vector3.Distance(originPos, transform.position).ToString("F2") + " m";
 	}
 }
