@@ -9,8 +9,7 @@ public class FootController : ControlledHuman {
     private Dictionary<string, Data.Motion> stdMotions = new Dictionary<string, Data.Motion>();
     private Data.Motion calibratedMotion = null;
     private Data.Motion stdMotion = null;
-
-    //private string currMotionName = "side_kick_right";
+    
     private string currMotionName = "long_kick_right";
 
     private void loadStdMotions()

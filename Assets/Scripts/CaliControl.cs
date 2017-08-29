@@ -8,18 +8,19 @@ public class CaliControl : ControlledHuman {
     public GameObject stdSkeleton;
     public GameObject canvas;
     public Text moveScreen;
-    public Text debugScreen;
+    public Text motionScreen;
+    public string[] motionNames;
     private CaliStdMotion caliStdMotion;
     private TimePanelControl timePanelControl;
 
-    //private string currMotionName = "side_kick_right";
-    private string currMotionName = "long_kick_right";
+    private int currMotionId;
+    private string currMotionName;
 
     void Start () {
         caliStdMotion = stdSkeleton.GetComponent<CaliStdMotion>();
         timePanelControl = canvas.GetComponent<TimePanelControl>();
-        stdMotion = loadStdMotion(currMotionName);
-        caliStdMotion.setMotion(currMotionName);
+        currMotionId = 0;
+        setStdMotion();
 	}
 
     private void updateMoveScreen()
@@ -44,12 +45,36 @@ public class CaliControl : ControlledHuman {
         endIndex = record.getIndex();
         currMotion = new Data.Motion();
         currMotion.formMotion(record, startIndex, endIndex);
-        debugScreen.text = Data.Motion.xPosDistance(currMotion, stdMotion).ToString();
+        //debugScreen.text = Data.Motion.xPosDistance(currMotion, stdMotion).ToString();
         caliStdMotion.setMotion(currMotionName);
     }
+
+    private void setStdMotion()
+    {
+        currMotionName = motionNames[currMotionId];
+        stdMotion = loadStdMotion(currMotionName);
+        caliStdMotion.setMotion(currMotionName);
+        motionScreen.text = currMotionName;
+    }
 	
+    private void updateMotionName()
+    {
+        if (Input.GetKeyDown(KeyCode.UpArrow) && currMotionId - 1 >= 0)
+        {
+            currMotionId--;
+            setStdMotion();
+        }
+        if (Input.GetKeyDown(KeyCode.DownArrow) && currMotionId + 1 < motionNames.Length)
+        {
+            currMotionId++;
+            setStdMotion();
+        }
+    }
+
 	new void Update () {
         base.Update();
+
+        updateMotionName();
 
         if (Utility.isStart(leftHand, rightHand))
         {
