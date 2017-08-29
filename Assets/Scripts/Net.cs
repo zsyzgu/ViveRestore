@@ -10,20 +10,27 @@ using System.Net;
 using System.Net.Sockets;
 using System;
 
+using UnityEngine;
+using System.Collections;
+
 public static class HmmClient
 {
     public static string Action = "";//缓存当前的动作，动态更新
+    static bool isCalc = false;
 
     //请求HMM更新Action
     public static void getAction()
     {
+        if (isCalc == true) return;
         Net.send(Net.NetDataType.query);
+        isCalc = true;
     }
 
     //
     public static void hmmStart()
     {
-        Net.ReceiveData = delegate (Net.NetDataType type, string data) { Action = data; };
+        isCalc = false;
+        Net.ReceiveData = delegate (Net.NetDataType type, string data) { Action = data; isCalc = false; };
         Net.send(Net.NetDataType.start);
     }
 
@@ -211,28 +218,28 @@ public class Net : MonoBehaviour
         {
             //try
             //{
-                byte[] buffer = new byte[1024];
-                //int length = clientSocket.Receive(buffer, min(buffer.Length, clientSocket.Available), 0);
-                int length = clientSocket.Receive(buffer);
-                if (length > 0)
+            byte[] buffer = new byte[1024];
+            //int length = clientSocket.Receive(buffer, min(buffer.Length, clientSocket.Available), 0);
+            int length = clientSocket.Receive(buffer);
+            if (length > 0)
+            {
+                string log = "receive: len:" + length.ToString() + " ";
+                for (int i = 0; i < length; i++) log += buffer[i].ToString() + ' ';
+                //Debug.Log(log);
+                if (receive_buffer == null)
                 {
-                    string log = "receive: len:" + length.ToString() + " ";
-                    for (int i = 0; i < length; i++) log += buffer[i].ToString() + ' ';
-                    //Debug.Log(log);
-                    if (receive_buffer == null)
-                    {
-                        receive_buffer = new byte[length];
-                        Buffer.BlockCopy(buffer, 0, receive_buffer, 0, length);
-                    }
-                    else
-                    {
-                        byte[] r = new byte[receive_buffer.Length + length];
-                        Buffer.BlockCopy(receive_buffer, 0, r, 0, receive_buffer.Length);
-                        Buffer.BlockCopy(buffer, 0, r, receive_buffer.Length, length);
-                        receive_buffer = r;
-                    }
-                    while (parse()) ;
+                    receive_buffer = new byte[length];
+                    Buffer.BlockCopy(buffer, 0, receive_buffer, 0, length);
                 }
+                else
+                {
+                    byte[] r = new byte[receive_buffer.Length + length];
+                    Buffer.BlockCopy(receive_buffer, 0, r, 0, receive_buffer.Length);
+                    Buffer.BlockCopy(buffer, 0, r, receive_buffer.Length, length);
+                    receive_buffer = r;
+                }
+                while (parse()) ;
+            }
             /*}
             catch (Exception e)
             {
@@ -274,16 +281,14 @@ public class Net : MonoBehaviour
     void Update()
     {
         this.receive();
+
         if (cnt == 0)
         {
             HmmClient.hmmStart();
         }
+        HmmClient.newFrame(new float[18]);
+        HmmClient.getAction();
+        Debug.Log(HmmClient.Action);
         cnt = (cnt + 1) % 200;
-        if (cnt % 5 == 0)
-        {
-            HmmClient.newFrame(new float[18]);
-            HmmClient.getAction();
-            Debug.Log(HmmClient.Action);
-        }
     }
 }
