@@ -19,7 +19,7 @@ public class BallKicking : MonoBehaviour {
         {
             float speed = footController.calnRightFootSpeed();
             obj.GetComponent<BallControl>().move();
-            obj.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 1.5f * speed, 3f * speed));
+            obj.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 1.4f * speed, 2f * speed));
         }
     }
 }
