@@ -6,20 +6,44 @@ using System.IO;
 
 public class Utility : MonoBehaviour
 {
-    static public bool isStart(GameObject objectLeftHand, GameObject objectRightHand)
+    static public GameObject leftHand;
+    static public GameObject rightHand;
+
+    static public bool isStart()
     {
-        if (objectLeftHand != null)
+        if (leftHand != null)
         {
-            int index = (int)objectLeftHand.GetComponent<SteamVR_TrackedObject>().index;
+            int index = (int)leftHand.GetComponent<SteamVR_TrackedObject>().index;
             if (index != -1 && SteamVR_Controller.Input(index).GetPressDown(SteamVR_Controller.ButtonMask.Trigger))
             {
                 return true;
             }
         }
-        if (objectRightHand != null)
+        if (rightHand != null)
         {
-            int index = (int)objectRightHand.GetComponent<SteamVR_TrackedObject>().index;
+            int index = (int)rightHand.GetComponent<SteamVR_TrackedObject>().index;
             if (index != -1 && SteamVR_Controller.Input(index).GetPressDown(SteamVR_Controller.ButtonMask.Trigger))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static public bool isPress()
+    {
+        if (leftHand != null)
+        {
+            int index = (int)leftHand.GetComponent<SteamVR_TrackedObject>().index;
+            if (index != -1 && SteamVR_Controller.Input(index).GetPress(SteamVR_Controller.ButtonMask.Trigger))
+            {
+                return true;
+            }
+        }
+        if (rightHand != null)
+        {
+            int index = (int)rightHand.GetComponent<SteamVR_TrackedObject>().index;
+            if (index != -1 && SteamVR_Controller.Input(index).GetPress(SteamVR_Controller.ButtonMask.Trigger))
             {
                 return true;
             }

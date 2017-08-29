@@ -10,9 +10,6 @@ using System.Net;
 using System.Net.Sockets;
 using System;
 
-using UnityEngine;
-using System.Collections;
-
 public static class HmmClient
 {
     public static string Action = "";//缓存当前的动作，动态更新
@@ -275,20 +272,10 @@ public class Net : MonoBehaviour
         receive_buffer = null;
         restByte = 0;
     }
-
-    int cnt = 0;
+    
     // Update is called once per frame
     void Update()
     {
         this.receive();
-
-        if (cnt == 0)
-        {
-            HmmClient.hmmStart();
-        }
-        HmmClient.newFrame(new float[18]);
-        HmmClient.getAction();
-        Debug.Log(HmmClient.Action);
-        cnt = (cnt + 1) % 200;
     }
 }

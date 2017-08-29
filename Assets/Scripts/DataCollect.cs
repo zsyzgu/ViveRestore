@@ -13,7 +13,8 @@ public class DataCollect : MonoBehaviour
     
     void Start()
     {
-
+        Utility.leftHand = objects[1];
+        Utility.rightHand = objects[2];
     }
 
     string getDataInfo()
@@ -106,7 +107,7 @@ public class DataCollect : MonoBehaviour
         checkMoving();
         checkHoming();
 
-        if (Utility.isStart(objects[1], objects[2]))
+        if (Utility.isStart())
         {
             if (TaskManager.isRest())
             {

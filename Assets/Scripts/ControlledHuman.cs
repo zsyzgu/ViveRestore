@@ -92,7 +92,7 @@ public class ControlledHuman : MonoBehaviour {
             {
                 float speed = Mathf.Min(Data.X_POS.handsDistRelatedToHead(record.getXPos(0), record.getXPos(1)), Data.X_POS.handsDistInWorldSpace(record.getXPos(0), record.getXPos(1))) / (record.getTimestamp(0) - record.getTimestamp(1));
 
-                if (speed >= SPEED_THRESHOLD)
+                if (speed >= SPEED_THRESHOLD && Utility.isPress())
                 {
                     moveFrames++;
                     stopFrames = 0;
@@ -129,6 +129,12 @@ public class ControlledHuman : MonoBehaviour {
     }
     protected MovingDetect movingDetect = new MovingDetect();
 
+    protected void Start()
+    {
+        Utility.leftHand = leftHand;
+        Utility.rightHand = rightHand;
+    }
+
     protected void Update()
     {
         float timestamp = Time.time;
@@ -152,4 +158,22 @@ public class ControlledHuman : MonoBehaviour {
         motion.preprocess();
         return motion;
     }
+
+    private const float smoothK = 0.8f;
+    protected void setLowerBody(Data.Y_POS yPos)
+    {
+        List<GameObject> objs = new List<GameObject>();
+        objs.Add(leftFoot);
+        objs.Add(rightFoot);
+        objs.Add(leftKnee);
+        objs.Add(rightKnee);
+        objs.Add(waist);
+        int cnt = 0;
+        for (int i = 0; i < yPos.N; i += 9)
+        {
+            objs[cnt].transform.position = objs[cnt].transform.position * smoothK + new Vector3(yPos.vec[i + 0], yPos.vec[i + 1], yPos.vec[i + 2]) * (1 - smoothK);
+            objs[cnt].transform.LookAt(new Vector3(yPos.vec[i + 3], yPos.vec[i + 4], yPos.vec[i + 5]));
+            cnt++;
+        }
+    }   
 }

@@ -16,7 +16,9 @@ public class CaliControl : ControlledHuman {
     private int currMotionId;
     private string currMotionName;
 
-    void Start () {
+    new void Start () {
+        base.Start();
+
         caliStdMotion = stdSkeleton.GetComponent<CaliStdMotion>();
         timePanelControl = canvas.GetComponent<TimePanelControl>();
         currMotionId = 0;
@@ -76,7 +78,7 @@ public class CaliControl : ControlledHuman {
 
         updateMotionName();
 
-        if (Utility.isStart(leftHand, rightHand))
+        if (Utility.isStart())
         {
             startIndex = record.getIndex();
             timePanelControl.startTimeKeeping();

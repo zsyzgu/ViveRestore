@@ -22,24 +22,6 @@ public class FootController : ControlledHuman {
         stdMotion = stdMotions[currMotionName];
     }
 
-    private const float smoothK = 0.8f;
-    private void setLowerBody(Data.Y_POS yPos)
-    {
-        List<GameObject> objs = new List<GameObject>();
-        objs.Add(leftFoot);
-        objs.Add(rightFoot);
-        objs.Add(leftKnee);
-        objs.Add(rightKnee);
-        objs.Add(waist);
-        int cnt = 0;
-        for (int i = 0; i < yPos.N; i += 9)
-        {
-            objs[cnt].transform.position = objs[cnt].transform.position * smoothK + new Vector3(yPos.vec[i + 0], yPos.vec[i + 1], yPos.vec[i + 2]) * (1 - smoothK);
-            objs[cnt].transform.LookAt(new Vector3(yPos.vec[i + 3], yPos.vec[i + 4], yPos.vec[i + 5]));
-            cnt++;
-        }
-    }
-
     public float calnRightFootSpeed()
     {
         if (record.getIndex() < 1)
@@ -51,7 +33,9 @@ public class FootController : ControlledHuman {
         return speed;
     }
 
-	void Start () {
+	new void Start () {
+        base.Start();
+
         loadStdMotions();
 	}
 	
