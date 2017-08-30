@@ -488,14 +488,28 @@ public class Data : MonoBehaviour {
             return frame;
         }
 
-        public void output(string motionName)
+        public void output(string path, string fileName, int motionId = -1)
         {
-            StreamWriter sw = File.CreateText("Std/cali_" + motionName + ".txt");
+            StreamWriter sw;
+            if (motionId == -1)
+            {
+                sw = File.CreateText(path + fileName + ".txt");
+            } else
+            {
+                sw = File.AppendText(path + "train.txt");
+            }
             
             for (int t = 0; t < timestamp.Count; t++)
             {
-                string info = timestamp[t].ToString();
+                string info = "";
 
+                if (motionId != -1)
+                {
+                    info += fileName + " ";
+                    info += motionId.ToString() + " ";
+                }
+
+                info += timestamp[t].ToString();
                 for (int i = 0; i < xPos[t].N; i++)
                 {
                     info += " " + xPos[t].vec[i].ToString();

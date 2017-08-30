@@ -30,12 +30,12 @@ public class Utility : MonoBehaviour
         return false;
     }
 
-    static public bool isPress()
+    static public bool isEnd()
     {
         if (leftHand != null)
         {
             int index = (int)leftHand.GetComponent<SteamVR_TrackedObject>().index;
-            if (index != -1 && SteamVR_Controller.Input(index).GetPress(SteamVR_Controller.ButtonMask.Trigger))
+            if (index != -1 && SteamVR_Controller.Input(index).GetPressUp(SteamVR_Controller.ButtonMask.Trigger))
             {
                 return true;
             }
@@ -43,7 +43,7 @@ public class Utility : MonoBehaviour
         if (rightHand != null)
         {
             int index = (int)rightHand.GetComponent<SteamVR_TrackedObject>().index;
-            if (index != -1 && SteamVR_Controller.Input(index).GetPress(SteamVR_Controller.ButtonMask.Trigger))
+            if (index != -1 && SteamVR_Controller.Input(index).GetPressUp(SteamVR_Controller.ButtonMask.Trigger))
             {
                 return true;
             }

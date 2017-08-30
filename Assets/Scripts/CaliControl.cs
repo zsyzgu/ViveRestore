@@ -9,12 +9,15 @@ public class CaliControl : ControlledHuman {
     public GameObject canvas;
     public Text moveScreen;
     public Text motionScreen;
+    public Text errorScreen;
+    public Text taskScreen;
     public string[] motionNames;
     private CaliStdMotion caliStdMotion;
     private TimePanelControl timePanelControl;
 
     private int currMotionId;
     private string currMotionName;
+    private float error = 0f;
 
     new void Start () {
         base.Start();
@@ -23,7 +26,8 @@ public class CaliControl : ControlledHuman {
         timePanelControl = canvas.GetComponent<TimePanelControl>();
         currMotionId = 0;
         setStdMotion();
-	}
+        File.CreateText("Cali/train.txt");
+    }
 
     private void updateMoveScreen()
     {
@@ -47,18 +51,25 @@ public class CaliControl : ControlledHuman {
         endIndex = record.getIndex();
         currMotion = new Data.Motion();
         currMotion.formMotion(record, startIndex, endIndex);
-        //debugScreen.text = Data.Motion.xPosDistance(currMotion, stdMotion).ToString();
+        error = Data.Motion.xPosDistance(currMotion, stdMotion);
+        errorScreen.text = error.ToString("F2");
         caliStdMotion.setMotion(currMotionName);
     }
 
     private void setStdMotion()
     {
         currMotionName = motionNames[currMotionId];
-        stdMotion = loadStdMotion(currMotionName);
+        stdMotion = loadMotion("Std/", currMotionName);
         caliStdMotion.setMotion(currMotionName);
         motionScreen.text = currMotionName;
+        motionId = 0;
+        minError = 1e9f;
+        taskScreen.text = "Complete " + motionId.ToString() + " motions";
     }
-	
+
+    private int motionId = 0;
+    private float minError = 1e9f;
+
     private void updateMotionName()
     {
         if (Input.GetKeyDown(KeyCode.UpArrow) && currMotionId - 1 >= 0)
@@ -83,11 +94,19 @@ public class CaliControl : ControlledHuman {
             startIndex = record.getIndex();
             timePanelControl.startTimeKeeping();
             caliStdMotion.startMotion();
+            errorScreen.text = "";
         }
 
         if (Utility.isRestart())
         {
-            currMotion.output(currMotionName);
+            if (error < minError)
+            {
+                minError = error;
+                currMotion.output("Cali/", currMotionName);
+            }
+            currMotion.output("Cali/", currMotionName, motionId);
+            motionId++;
+            taskScreen.text = "Complete " + motionId.ToString() + " motions";
         }
 
         updateMoveScreen();

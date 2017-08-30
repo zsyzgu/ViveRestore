@@ -72,7 +72,7 @@ public class ControlledHuman : MonoBehaviour {
     {
         const float SPEED_THRESHOLD = 0.2f;
         const float BEGIN_DURATION = 0.1f;
-        const float END_DURATION = 0.2f;
+        const float END_DURATION = 0.5f;
 
         private Vector3 lastLeftHandPos;
         private Vector3 lastRightHandPos;
@@ -80,6 +80,7 @@ public class ControlledHuman : MonoBehaviour {
         private int stopFrames = 0;
         private bool moving = false;
         private int startIndex = 0;
+        private bool pressing = false;
 
         private void startMoving(Record record)
         {
@@ -88,31 +89,47 @@ public class ControlledHuman : MonoBehaviour {
 
         public void update(Record record)
         {
+            if (Utility.isStart())
+            {
+                pressing = true;
+            }
+            if (Utility.isEnd())
+            {
+                pressing = false;
+            }
+
             if (record.getIndex() >= 1)
             {
                 float speed = Mathf.Min(Data.X_POS.handsDistRelatedToHead(record.getXPos(0), record.getXPos(1)), Data.X_POS.handsDistInWorldSpace(record.getXPos(0), record.getXPos(1))) / (record.getTimestamp(0) - record.getTimestamp(1));
-
-                if (speed >= SPEED_THRESHOLD && Utility.isPress())
+                
+                if (pressing)
                 {
-                    moveFrames++;
-                    stopFrames = 0;
-                    if (record.getTimestamp(0) - record.getTimestamp(moveFrames) >= BEGIN_DURATION)
+                    if (speed >= SPEED_THRESHOLD)
                     {
-                        if (moving == false)
+                        moveFrames++;
+                        stopFrames = 0;
+                        if (record.getTimestamp(0) - record.getTimestamp(moveFrames) >= BEGIN_DURATION)
                         {
-                            moving = true;
-                            startMoving(record);
+                            if (moving == false)
+                            {
+                                moving = true;
+                                startMoving(record);
+                            }
                         }
                     }
-                }
-                else
-                {
-                    moveFrames = 0;
-                    stopFrames++;
-                    if (record.getTimestamp(0) - record.getTimestamp(stopFrames) >= END_DURATION)
+                    else
                     {
-                        moving = false;
+                        moveFrames = 0;
+                        stopFrames++;
+                        if (record.getTimestamp(0) - record.getTimestamp(stopFrames) >= END_DURATION)
+                        {
+                            moving = false;
+                        }
                     }
+                } else
+                {
+                    moveFrames = stopFrames = 0;
+                    moving = false;
                 }
             }
         }
@@ -144,10 +161,10 @@ public class ControlledHuman : MonoBehaviour {
         movingDetect.update(record);
     }
 
-    protected Data.Motion loadStdMotion(string name)
+    protected Data.Motion loadMotion(string path, string name)
     {
         Data.Motion motion = new Data.Motion();
-        string fileName = "Std/" + name + ".txt";
+        string fileName = path + name + ".txt";
         StreamReader sr = File.OpenText(fileName);
         string line;
         while ((line = sr.ReadLine()) != null)
