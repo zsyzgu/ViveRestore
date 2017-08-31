@@ -90,7 +90,7 @@ public class ParkourControl : ControlledHuman {
                 shouldReset = true;
             } else
             {
-                if (Data.X_POS.handsDistRelatedToHead(record.getXPos(0), stdMotions[currMotion].xStart) < 0.2f)
+                if (Data.X_POS.handsDistRelatedToHead(record.getXPos(0), stdMotions[currMotion].xStart) < 0.2f && record.getXPos(0).vec[11] < record.getXPos(1).vec[11])
                 {
                     shouldReset = true;
                 }
@@ -109,7 +109,7 @@ public class ParkourControl : ControlledHuman {
             forwardSpeed = Mathf.Min(forwardSpeed + 1f * Time.deltaTime, 3.0f);
         } else
         {
-            forwardSpeed = Mathf.Max(forwardSpeed - 2f * Time.deltaTime, 1.0f);
+            forwardSpeed = Mathf.Max(forwardSpeed - 1f * Time.deltaTime, 1.0f);
         }
         forward += forwardSpeed * Time.deltaTime;
         if (canvas.GetComponent<HPCounter>().gameOver() == false)
