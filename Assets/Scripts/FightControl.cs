@@ -58,7 +58,7 @@ public class FightControl : ControlledHuman {
             }
         }
 
-        motionScreen.text = currMotion;
+        //motionScreen.text = currMotion;
     }
 
     void retrieval()
@@ -107,7 +107,7 @@ public class FightControl : ControlledHuman {
             }
         }
 
-        canvas.GetComponent<SandbagStatus>().hit(currMotion, speed);
+        canvas.GetComponent<SandbagStatus>().hit(motion, speed);
     }
 
     new void Start()

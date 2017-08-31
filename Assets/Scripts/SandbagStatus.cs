@@ -66,7 +66,7 @@ public class SandbagStatus : MonoBehaviour {
         }
         if (image != null)
         {
-            image.color = new Color(Mathf.Max(0f, image.color.r - force), 1f, 1f);
+            image.color = new Color(Mathf.Max(0f, image.color.r - force / 50f), Mathf.Max(0f, image.color.g - force / 50f), 1f);
         }
     }
 
