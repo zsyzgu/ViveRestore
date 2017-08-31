@@ -82,11 +82,25 @@ public class ParkourControl : ControlledHuman {
         setLowerBody(new Data.Y_POS(predictYPos + stdMotions[currMotion].yStart + new Vector3(head.transform.position.x, 0f, forward)));
 
         bool moving = movingDetect.isMoving();
-        if (!moving && predictFrame > stdMotions[currMotion].timestamp.Count - 1)
+        if (!moving)
         {
-            for (int i = 0; i < motionName.Length; i++)
+            bool shouldReset = false;
+            if (predictFrame > stdMotions[currMotion].timestamp.Count - 1)
             {
-                caliMotions[motionName[i]].resetMotion();
+                shouldReset = true;
+            } else
+            {
+                if (Data.X_POS.handsDistRelatedToHead(record.getXPos(0), stdMotions[currMotion].xStart) < 0.2f)
+                {
+                    shouldReset = true;
+                }
+            }
+            if (shouldReset)
+            {
+                for (int i = 0; i < motionName.Length; i++)
+                {
+                    caliMotions[motionName[i]].resetMotion();
+                }
             }
         }
 
@@ -95,7 +109,7 @@ public class ParkourControl : ControlledHuman {
             forwardSpeed = Mathf.Min(forwardSpeed + 1f * Time.deltaTime, 3.0f);
         } else
         {
-            forwardSpeed = Mathf.Max(forwardSpeed - 2f * Time.deltaTime, 0.5f);
+            forwardSpeed = Mathf.Max(forwardSpeed - 2f * Time.deltaTime, 1.0f);
         }
         forward += forwardSpeed * Time.deltaTime;
         if (canvas.GetComponent<HPCounter>().gameOver() == false)
@@ -113,6 +127,11 @@ public class ParkourControl : ControlledHuman {
     public void damage()
     {
         canvas.GetComponent<HPCounter>().demage(0.1f);
+    }
+
+    public string getCurrMotion()
+    {
+        return currMotion;
     }
 
     new void Start()
