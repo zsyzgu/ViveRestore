@@ -63,6 +63,7 @@
      <Compile Include="Assets\Scripts\MappingHuman.cs" />
      <Compile Include="Assets\Scripts\MoveDetect.cs" />
      <Compile Include="Assets\Scripts\Net.cs" />
+     <Compile Include="Assets\Scripts\ParkourControl.cs" />
      <Compile Include="Assets\Scripts\SandbagHitting.cs" />
      <Compile Include="Assets\Scripts\SandbagStatus.cs" />
      <Compile Include="Assets\Scripts\Show.cs" />
