@@ -20,6 +20,7 @@ public class SandbagHitting : MonoBehaviour {
     {
         speed = (transform.position - lastPos) / Time.deltaTime;
         lastPos = transform.position;
+
         if (leftPulseTime > 0f)
         {
             Utility.leftPulse((int)leftPulseForce);
@@ -36,11 +37,23 @@ public class SandbagHitting : MonoBehaviour {
     {
         if (obj.name == "Sandbag")
         {
-            leftPulseTime = rightPulseTime = 0.2f;
-            leftPulseForce = rightPulseForce = speed.magnitude * 500f;
-            Debug.Log(gameObject.name);
-            obj.GetComponent<Rigidbody>().AddForceAtPosition(speed * 100f, obj.transform.position);
+            if (gameObject.name == "leftHand")
+            {
+                leftPulseTime = 0.2f;
+                leftPulseForce = speed.magnitude * 500f;
+            } else if (gameObject.name == "rightHand")
+            {
+                rightPulseTime = 0.2f;
+                rightPulseForce = speed.magnitude * 500f;
+            } else
+            {
+                leftPulseTime = 0.2f;
+                rightPulseTime = 0.2f;
+                leftPulseForce = speed.magnitude * 250f;
+                rightPulseForce = speed.magnitude * 250f;
+            }
             
+            obj.GetComponent<Rigidbody>().AddForceAtPosition(speed * 100f, obj.transform.position);
             fightControl.hitSandbag(speed.magnitude);
         }
     }

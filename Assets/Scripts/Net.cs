@@ -82,6 +82,11 @@ public class Net : MonoBehaviour
         //send("Connection OK.");
     }
 
+    static public void closeSocket()
+    {
+        clientSocket.Close();
+    }
+
     // Send a string
     static private void send(byte[] buffer)
     {

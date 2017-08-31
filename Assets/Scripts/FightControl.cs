@@ -124,4 +124,9 @@ public class FightControl : ControlledHuman {
         updateHMM();
         retrieval();
     }
+
+    void OnDestroy()
+    {
+        Net.closeSocket();
+    }
 }
