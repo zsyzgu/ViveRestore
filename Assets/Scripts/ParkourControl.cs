@@ -1,13 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ParkourControl : ControlledHuman {
     public string[] motionName;
+    public Text distScreen;
+    public GameObject canvas;
 
     private Dictionary<string, Data.Motion> stdMotions = new Dictionary<string, Data.Motion>();
     private Dictionary<string, Data.Motion> caliMotions = new Dictionary<string, Data.Motion>();
     private string currMotion = "walking";
+    private float totalDist = 0f;
 
     private void loadMotions()
     {
@@ -76,9 +80,9 @@ public class ParkourControl : ControlledHuman {
         }
         Data.Y_POS predictYPos = stdMotions[currMotion].getYPos(predictFrame);
         setLowerBody(new Data.Y_POS(predictYPos + stdMotions[currMotion].yStart + new Vector3(head.transform.position.x, 0f, forward)));
-        
+
         bool moving = movingDetect.isMoving();
-        if (!moving && predictFrame > 200f)
+        if (!moving && predictFrame > stdMotions[currMotion].timestamp.Count - 1)
         {
             for (int i = 0; i < motionName.Length; i++)
             {
@@ -86,7 +90,7 @@ public class ParkourControl : ControlledHuman {
             }
         }
 
-        if (currMotion == "running")
+        if (currMotion != "walking")
         {
             forwardSpeed = Mathf.Min(forwardSpeed + 1f * Time.deltaTime, 3.0f);
         } else
@@ -94,11 +98,21 @@ public class ParkourControl : ControlledHuman {
             forwardSpeed = Mathf.Max(forwardSpeed - 2f * Time.deltaTime, 0.5f);
         }
         forward += forwardSpeed * Time.deltaTime;
+        if (canvas.GetComponent<HPCounter>().gameOver() == false)
+        {
+            totalDist += forwardSpeed * Time.deltaTime;
+            distScreen.text = totalDist.ToString("F2") + " m";
+        }
         if (forward > 50f)
         {
             forward = 0f;
         }
         transform.position = new Vector3(0f, 0f, forward);
+    }
+
+    public void damage()
+    {
+        canvas.GetComponent<HPCounter>().demage(0.1f);
     }
 
     new void Start()

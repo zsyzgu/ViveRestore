@@ -57,6 +57,8 @@
      <Compile Include="Assets\Scripts\FileLogger.cs" />
      <Compile Include="Assets\Scripts\FootController.cs" />
      <Compile Include="Assets\Scripts\FromTrackers.cs" />
+     <Compile Include="Assets\Scripts\HPCounter.cs" />
+     <Compile Include="Assets\Scripts\HittingBlock.cs" />
      <Compile Include="Assets\Scripts\IKHandling.cs" />
      <Compile Include="Assets\Scripts\Limb.cs" />
      <Compile Include="Assets\Scripts\MainControl.cs" />

@@ -34,6 +34,11 @@ public class FightControl : ControlledHuman {
                 HmmClient.hmmStart();
                 firstMove = false;
                 firstMoveTime = Time.time;
+                
+                for (int i = 0; i < motionName.Length; i++)
+                {
+                    caliMotions[motionName[i]].resetMotion();
+                }
             }
             if (Time.time - firstMoveTime <= 0.2f)
             {
@@ -80,10 +85,6 @@ public class FightControl : ControlledHuman {
             setLowerBody(new Data.Y_POS(predictYPos + stdMotions[currMotion].yStart));
         } else
         {
-            for (int i = 0; i < motionName.Length; i++)
-            {
-                caliMotions[motionName[i]].resetMotion();
-            }
             setLowerBody(stdMotions[currMotion].yStart);
         }
     }
