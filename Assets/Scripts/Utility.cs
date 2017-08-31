@@ -51,6 +51,30 @@ public class Utility : MonoBehaviour
         return false;
     }
 
+    static public void leftPulse(int force)
+    {
+        if (leftHand != null)
+        {
+            int index = (int)leftHand.GetComponent<SteamVR_TrackedObject>().index;
+            if (index != -1)
+            {
+                SteamVR_Controller.Input(index).TriggerHapticPulse((ushort)force);
+            }
+        }
+    }
+
+    static public void rightPulse(int force)
+    {
+        if (rightHand != null)
+        {
+            int index = (int)rightHand.GetComponent<SteamVR_TrackedObject>().index;
+            if (index != -1)
+            {
+                SteamVR_Controller.Input(index).TriggerHapticPulse((ushort)force);
+            }
+        }
+    }
+
     static public bool isRestart()
     {
         if (Input.GetKeyDown(KeyCode.Space))

@@ -7,6 +7,7 @@ using System.IO;
 public class FightControl : ControlledHuman {
     public string[] motionName;
     public Text motionScreen;
+    public GameObject canvas;
 
     private Dictionary<string, Data.Motion> stdMotions = new Dictionary<string, Data.Motion>();
     private Dictionary<string, Data.Motion> caliMotions = new Dictionary<string, Data.Motion>();
@@ -85,6 +86,28 @@ public class FightControl : ControlledHuman {
             }
             setLowerBody(stdMotions[currMotion].yStart);
         }
+    }
+
+    public void hitSandbag(float speed)
+    {
+        bool moving = movingDetect.isMoving();
+
+        string motion = "";
+        if (moving)
+        {
+            motion = currMotion;
+        } else
+        {
+            if (currMotion == "side_kick_left")
+            {
+                motion = "fist_right";
+            } else
+            {
+                motion = "fist_left";
+            }
+        }
+
+        canvas.GetComponent<SandbagStatus>().hit(currMotion, speed);
     }
 
     new void Start()
