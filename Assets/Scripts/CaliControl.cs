@@ -50,9 +50,16 @@ public class CaliControl : ControlledHuman {
     {
         endIndex = record.getIndex();
         currMotion = new Data.Motion();
-        currMotion.formMotion(record, startIndex, endIndex);
-        error = Data.Motion.xPosDistance(currMotion, stdMotion);
-        errorScreen.text = error.ToString("F2");
+        string error = currMotion.formMotion(record, startIndex, endIndex);
+        //error = Data.Motion.xPosDistance(currMotion, stdMotion);
+        if (error == "ok")
+        {
+            errorScreen.color = Color.green;
+        } else
+        {
+            errorScreen.color = Color.red;
+        }
+        errorScreen.text = error;
         caliStdMotion.setMotion(currMotionName);
     }
 
@@ -97,7 +104,7 @@ public class CaliControl : ControlledHuman {
             errorScreen.text = "";
         }
 
-        if (Utility.isRestart())
+        if (Utility.isRestart() && errorScreen.text == "ok")
         {
             if (error < minError)
             {

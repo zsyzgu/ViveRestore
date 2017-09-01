@@ -304,7 +304,7 @@ public class Data : MonoBehaviour {
             yPos.Add(y);
         }
 
-        public void formMotion(ControlledHuman.Record record, int startIndex, int endIndex)
+        public string formMotion(ControlledHuman.Record record, int startIndex, int endIndex)
         {
             int currIndex = record.getIndex();
             for (int i = startIndex; i <= endIndex; i++)
@@ -313,7 +313,76 @@ public class Data : MonoBehaviour {
                 xPos.Add(record.getXPos(currIndex - i));
                 yPos.Add(record.getYPos(currIndex - i));
             }
+
+            int T = timestamp.Count;
+            int moving = 0;
+            int stop = 0;
+            int startTime = -1;
+            int endTime = -1;
+            bool isMoving = false;
+            for (int i = 1; i < T; i++)
+            {
+                float speed = POS.meanDist(xPos[i], xPos[i - 1]) / (timestamp[i] - timestamp[i - 1]);
+                if (speed >= 0.2f)
+                {
+                    moving++;
+                    stop = 0;
+                }
+                else
+                {
+                    moving = 0;
+                    stop++;
+                }
+                if (timestamp[i] - timestamp[i - moving] >= 0.1f)
+                {
+                    isMoving = true;
+                }
+                if (timestamp[i] - timestamp[i - stop] >= 0.5f)
+                {
+                    isMoving = false;
+                }
+                if (isMoving)
+                {
+                    if (startTime == -1)
+                    {
+                        startTime = i;
+                    }
+                    if (endTime != -1)
+                    {
+                        return "more than one action recorded";
+                    }
+                }
+                else
+                {
+                    if (startTime != -1 && endTime == -1)
+                    {
+                        endTime = i;
+                    }
+                }
+            }
+
+            if (startTime == -1)
+            {
+                return "no action recorded";
+            }
+
+            if (endTime == -1)
+            {
+                return "no stop at the end";
+            }
+
+            if (timestamp[startTime] - 1f > 0.5f)
+            {
+                return "begin too late";
+            }
+
+            if (timestamp[startTime] - 1f < -0.5f)
+            {
+                return "begin too early";
+            }
+            
             preprocess();
+            return "ok";
         }
 
         private void segment()

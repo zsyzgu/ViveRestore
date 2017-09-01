@@ -23,7 +23,6 @@ public class ParkourControl : ControlledHuman {
     }
 
     private bool firstMove = true;
-    private float firstMoveTime = 0f;
     void updateHMM()
     {
         bool moving = movingDetect.isMoving();
@@ -33,21 +32,17 @@ public class ParkourControl : ControlledHuman {
             {
                 HmmClient.hmmStart();
                 firstMove = false;
-                firstMoveTime = Time.time;
 
                 for (int i = 0; i < motionName.Length; i++)
                 {
                     caliMotions[motionName[i]].resetMotion();
                 }
             }
-            if (Time.time - firstMoveTime <= 0.2f)
+            HmmClient.newFrame(new Data.X_POS((record.getXPos(0) - record.getXPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1))).getHandsVector());
+            HmmClient.getAction();
+            if (HmmClient.Action != "")
             {
-                HmmClient.newFrame(new Data.X_POS((record.getXPos(0) - record.getXPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1))).getHandsVector());
-                HmmClient.getAction();
-                if (HmmClient.Action != "")
-                {
-                    currMotion = HmmClient.Action;
-                }
+                currMotion = HmmClient.Action;
             }
         }
         else
