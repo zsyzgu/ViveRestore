@@ -167,16 +167,32 @@ public class ControlledHuman : MonoBehaviour {
         movingDetect.update(record);
     }
 
-    protected Data.Motion loadMotion(string path, string name)
+    protected Data.Motion loadStdMotion(string fileName)
     {
         Data.Motion motion = new Data.Motion();
-        string fileName = path + name + ".txt";
         StreamReader sr = File.OpenText(fileName);
         string line;
         while ((line = sr.ReadLine()) != null)
         {
             string[] tags = line.Split(' ');
             motion.readTags(tags);
+        }
+        motion.preprocess();
+        return motion;
+    }
+
+    protected Data.Motion loadCaliMotion(string fileName, string motionName, int id = 0)
+    {
+        Data.Motion motion = new Data.Motion();
+        StreamReader sr = File.OpenText(fileName);
+        string line;
+        while ((line = sr.ReadLine()) != null)
+        {
+            string[] tags = line.Split(' ');
+            if (tags[0] == motionName && int.Parse(tags[1]) == id)
+            {
+                motion.readTags(tags, 2);
+            }
         }
         motion.preprocess();
         return motion;

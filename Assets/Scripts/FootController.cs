@@ -16,9 +16,9 @@ public class FootController : ControlledHuman {
     {
         foreach (string name in motionName)
         {
-            stdMotions[name] = loadMotion("Std/", name);
+            stdMotions[name] = loadStdMotion("Std/" + name + ".txt");
         }
-        calibratedMotion = loadMotion("Cali/", currMotionName);
+        calibratedMotion = loadCaliMotion("Cali/soccer.txt", currMotionName);
         stdMotion = stdMotions[currMotionName];
     }
 

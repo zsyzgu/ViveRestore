@@ -287,18 +287,18 @@ public class Data : MonoBehaviour {
             return ret;
         }
 
-        public void readTags(string[] tags)
+        public void readTags(string[] tags, int baseId = 0)
         {
-            timestamp.Add(float.Parse(tags[0]));
+            timestamp.Add(float.Parse(tags[baseId + 0]));
             X_POS x = new X_POS();
             for (int i = 0; i < x.N; i++)
             {
-                x.vec[i] = float.Parse(tags[1 + i]);
+                x.vec[i] = float.Parse(tags[baseId + 1 + i]);
             }
             Y_POS y = new Y_POS();
             for (int i = 0; i < y.N; i++)
             {
-                y.vec[i] = float.Parse(tags[1 + x.N + i]);
+                y.vec[i] = float.Parse(tags[baseId + 1 + x.N + i]);
             }
             xPos.Add(x);
             yPos.Add(y);

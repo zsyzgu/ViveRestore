@@ -17,8 +17,8 @@ public class FightControl : ControlledHuman {
     {
         foreach (string name in motionName)
         {
-            stdMotions[name] = loadMotion("Std/", name);
-            caliMotions[name] = loadMotion("Cali/", name);
+            stdMotions[name] = loadStdMotion("Std/" + name + ".txt");
+            caliMotions[name] = loadCaliMotion("Cali/fighting.txt", name);
         }
     }
 
