@@ -5,67 +5,69 @@ using System.IO;
 
 public class CaliStdMotion : MonoBehaviour {
     public GameObject[] cubes;
-    StreamReader sr = null;
-    bool started = false;
+    private List<string> motion = new List<string>();
+    private int index = -1;
+    private bool shouldDestroy = false;
 
     void Start()
     {
 
     }
 
-    public void setMotion(string motionName)
+    public void loadMotion(string fileName)
     {
-        if (sr != null)
+        motion.Clear();
+        StreamReader sr = File.OpenText(fileName);
+
+        string str = "";
+        while ((str = sr.ReadLine()) != null)
         {
-            sr.Close();
-            sr = null;
+            motion.Add(str);
         }
-        sr = File.OpenText("Std/" + motionName + ".txt");
-        string str = sr.ReadLine();
-        updateMotion(str);
-        started = false;
+
+        sr.Close();
     }
 
-    public void startMotion()
+    public void startMotion(bool shouldDestroy = false)
     {
-        started = true;
+        index = 0;
+        this.shouldDestroy = shouldDestroy;
     }
 
-    void updateMotion(string str)
+    void updateMotion(int id)
     {
-        string[] tags = str.Split(' ');
-        int cnt = 0;
-        for (int i = 1; i < tags.Length; i += 9)
+        if (id < motion.Count)
         {
-            cubes[cnt].transform.position = new Vector3(float.Parse(tags[i + 0]), float.Parse(tags[i + 1]), float.Parse(tags[i + 2])) + transform.position;
-            cubes[cnt].transform.LookAt(new Vector3(float.Parse(tags[i + 3]), float.Parse(tags[i + 4]), float.Parse(tags[i + 5])) + transform.position);
-            cnt++;
+            string[] tags = motion[id].Split(' ');
+
+            int cnt = 0;
+            for (int i = 1; i < tags.Length; i += 9)
+            {
+                cubes[cnt].transform.position = new Vector3(float.Parse(tags[i + 0]), float.Parse(tags[i + 1]), float.Parse(tags[i + 2])) + transform.position;
+                cnt++;
+            }
         }
     }
 
     void Update()
     {
-        if (sr != null)
+        if (index != -1)
         {
-            if (started)
+            index++;
+            if (index >= motion.Count)
             {
-                string str = sr.ReadLine();
-                if (str == null)
+                index = -1;
+                if (shouldDestroy)
                 {
-                    sr.Close();
-                    sr = null;
-                    return;
+                    gameObject.SetActive(false);
                 }
-
-                updateMotion(str);
+            } else
+            {
+                updateMotion(index);
             }
         } else
         {
-            for (int i = 0; i < cubes.Length; i++)
-            {
-                cubes[i].transform.position = new Vector3();
-                cubes[i].transform.eulerAngles = new Vector3();
-            }
+            updateMotion(0);
         }
     }
 }

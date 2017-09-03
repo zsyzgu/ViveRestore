@@ -81,10 +81,16 @@ public class ControlledHuman : MonoBehaviour {
         private bool moving = false;
         private int startIndex = 0;
         private bool pressing = false;
+        private bool needPressing = true;
 
         private void startMoving(Record record)
         {
             startIndex = record.getIndex() - moveFrames;
+        }
+
+        public void setNeedPressing(bool value)
+        {
+            needPressing = value;
         }
 
         public void update(Record record)
@@ -102,7 +108,7 @@ public class ControlledHuman : MonoBehaviour {
             {
                 float speed = Mathf.Min(Data.X_POS.handsDistRelatedToHead(record.getXPos(0), record.getXPos(1)), Data.X_POS.handsDistInWorldSpace(record.getXPos(0), record.getXPos(1))) / (record.getTimestamp(0) - record.getTimestamp(1));
                 
-                if (pressing)
+                if (pressing || needPressing == false)
                 {
                     if (speed >= SPEED_THRESHOLD)
                     {

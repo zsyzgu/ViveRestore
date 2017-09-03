@@ -304,7 +304,7 @@ public class Data : MonoBehaviour {
             yPos.Add(y);
         }
 
-        public string formMotion(ControlledHuman.Record record, int startIndex, int endIndex)
+        public void formMotion(ControlledHuman.Record record, int startIndex, int endIndex)
         {
             int currIndex = record.getIndex();
             for (int i = startIndex; i <= endIndex; i++)
@@ -313,79 +313,9 @@ public class Data : MonoBehaviour {
                 xPos.Add(record.getXPos(currIndex - i));
                 yPos.Add(record.getYPos(currIndex - i));
             }
-
-            int T = timestamp.Count;
-            int moving = 0;
-            int stop = 0;
-            int startTime = -1;
-            int endTime = -1;
-            bool isMoving = false;
-            for (int i = 1; i < T; i++)
-            {
-                float speed = POS.meanDist(xPos[i], xPos[i - 1]) / (timestamp[i] - timestamp[i - 1]);
-                if (speed >= 0.2f)
-                {
-                    moving++;
-                    stop = 0;
-                }
-                else
-                {
-                    moving = 0;
-                    stop++;
-                }
-                if (timestamp[i] - timestamp[i - moving] >= 0.1f)
-                {
-                    isMoving = true;
-                }
-                if (timestamp[i] - timestamp[i - stop] >= 0.5f)
-                {
-                    isMoving = false;
-                }
-                if (isMoving)
-                {
-                    if (startTime == -1)
-                    {
-                        startTime = i;
-                    }
-                    if (endTime != -1)
-                    {
-                        return "more than one action recorded";
-                    }
-                }
-                else
-                {
-                    if (startTime != -1 && endTime == -1)
-                    {
-                        endTime = i;
-                    }
-                }
-            }
-
-            if (startTime == -1)
-            {
-                return "no action recorded";
-            }
-
-            if (endTime == -1)
-            {
-                return "no stop at the end";
-            }
-
-            if (timestamp[startTime] - 1f > 0.5f)
-            {
-                return "begin too late";
-            }
-
-            if (timestamp[startTime] - 1f < -0.5f)
-            {
-                return "begin too early";
-            }
-            
-            preprocess();
-            return "ok";
         }
 
-        private void segment()
+        private bool segment()
         {
             int startIndex = -1;
             int endIndex = -1;
@@ -429,15 +359,21 @@ public class Data : MonoBehaviour {
                 }
             }
 
+            bool ok = true;
             if (startIndex == -1)
             {
                 Debug.Log("segment error (begin)");
                 startIndex = 0;
+                ok = false;
+            } else if (Mathf.Abs(timestamp[startIndex] - timestamp[0] - 1f) > 0.5f)
+            {
+                ok = false;
             }
             if (endIndex == -1)
             {
                 Debug.Log("segment error (end)");
                 endIndex = timestamp.Count - 1;
+                ok = false;
             }
 
             timestamp = timestamp.GetRange(startIndex, endIndex - startIndex + 1);
@@ -453,6 +389,8 @@ public class Data : MonoBehaviour {
                 yPos[t] = new Y_POS(yPos[t] - yStart);
                 timestamp[t] -= startTime;
             }
+
+            return ok;
         }
 
         private void calnSpeed()
@@ -469,10 +407,11 @@ public class Data : MonoBehaviour {
             }
         }
 
-        public void preprocess()
+        public bool preprocess()
         {
-            segment();
+            bool ok = segment();
             calnSpeed();
+            return ok;
         }
 
         private X_POS getXSpeed(float t)
@@ -557,28 +496,38 @@ public class Data : MonoBehaviour {
             return frame;
         }
 
-        public void output(string path, string fileName, int motionId = -1)
+        public void ts()
         {
-            StreamWriter sw;
-            if (motionId == -1)
+            StreamWriter sw = File.CreateText("Cali/cali.txt");
+
+            for (int t = 0; t < timestamp.Count; t++)
             {
-                sw = File.CreateText(path + fileName + ".txt");
-            } else
-            {
-                sw = File.AppendText(path + "train.txt");
+                string info = timestamp[t].ToString();
+
+                for (int i = 0; i < xPos[t].N; i++)
+                {
+                    info += " " + xPos[t].vec[i].ToString();
+                }
+
+                for (int i = 0; i < yPos[t].N; i++)
+                {
+                    info += " " + yPos[t].vec[i].ToString();
+                }
+
+                sw.WriteLine(info);
             }
+
+            sw.Close();
+        }
+
+        public void output(string fileName, string motionName, int motionId)
+        {
+            StreamWriter sw = File.AppendText(fileName);
             
             for (int t = 0; t < timestamp.Count; t++)
             {
-                string info = "";
-
-                if (motionId != -1)
-                {
-                    info += fileName + " ";
-                    info += motionId.ToString() + " ";
-                }
-
-                info += timestamp[t].ToString();
+                string info = motionName + " " + motionId.ToString() + " " + timestamp[t].ToString();
+                
                 for (int i = 0; i < xPos[t].N; i++)
                 {
                     info += " " + xPos[t].vec[i].ToString();
