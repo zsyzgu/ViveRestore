@@ -24,14 +24,12 @@ public class DataCollect : MonoBehaviour
         for (int i = 0; i < objects.Length; i++)
         {
             Vector3 position = new Vector3();
-            Vector3 F = new Vector3();
-            Vector3 U = new Vector3();
+            Quaternion rotation = new Quaternion();
 
             if (objects[i] != null)
             {
                 position = objects[i].transform.position;
-                F = position + objects[i].transform.forward * 0.1f;
-                U = position + objects[i].transform.up * 0.1f;
+                rotation = objects[i].transform.rotation;
             } else
             {
                 Debug.Log("Device " + i + " is missing.");
@@ -42,7 +40,7 @@ public class DataCollect : MonoBehaviour
                 info += " ";
             }
 
-            info += position.x + " " + position.y + " " + position.z + " " + F.x + " " + F.y + " " + F.z + " " + U.x + " " + U.y + " " + U.z;
+            info += position.x + " " + position.y + " " + position.z + " " + rotation.x + " " + rotation.y + " " + rotation.z + " " + rotation.w;
 
         }
 
@@ -67,25 +65,21 @@ public class DataCollect : MonoBehaviour
         for (int i = s; i < t; i++)
         {
             Vector3 position = new Vector3();
-            Vector3 F = new Vector3();
-            Vector3 U = new Vector3();
+            Quaternion rotation = new Quaternion();
 
             if (objects[i] != null)
             {
                 position = objects[i].transform.position;
-                F = position + objects[i].transform.forward * 0.1f;
-                U = position + objects[i].transform.up * 0.1f;
+                rotation = objects[i].transform.rotation;
             }
 
-            pos.vec[(i - s) * 9 + 0] = position.x;
-            pos.vec[(i - s) * 9 + 1] = position.y;
-            pos.vec[(i - s) * 9 + 2] = position.z;
-            pos.vec[(i - s) * 9 + 3] = F.x;
-            pos.vec[(i - s) * 9 + 4] = F.y;
-            pos.vec[(i - s) * 9 + 5] = F.z;
-            pos.vec[(i - s) * 9 + 6] = U.x;
-            pos.vec[(i - s) * 9 + 7] = U.y;
-            pos.vec[(i - s) * 9 + 8] = U.z;
+            pos.vec[(i - s) * 7 + 0] = position.x;
+            pos.vec[(i - s) * 7 + 1] = position.y;
+            pos.vec[(i - s) * 7 + 2] = position.z;
+            pos.vec[(i - s) * 7 + 3] = rotation.x;
+            pos.vec[(i - s) * 7 + 4] = rotation.y;
+            pos.vec[(i - s) * 7 + 5] = rotation.z;
+            pos.vec[(i - s) * 7 + 6] = rotation.w;
         }
 
         return pos;
@@ -163,7 +157,7 @@ public class DataCollect : MonoBehaviour
         bool isMoving = false;
         for (int i = 1; i < T; i++)
         {
-            float speed = Data.POS.meanDist(xPos[i], xPos[i - 1]) / (timestamp[i] - timestamp[i - 1]);
+            float speed = Data.POS.dist(xPos[i], xPos[i - 1]) / (timestamp[i] - timestamp[i - 1]);
             if (speed >= speedThreshold)
             {
                 moving++;
@@ -225,7 +219,7 @@ public class DataCollect : MonoBehaviour
             return false;
         }
 
-        float dist = Data.POS.meanDist(xPos[0], homePos);
+        float dist = Data.POS.dist(xPos[0], homePos);
         if (dist > homeThreshold)
         {
             errorInfo = "not reset at begin";
@@ -265,7 +259,7 @@ public class DataCollect : MonoBehaviour
     void checkMoving()
     {
         Data.X_POS xPos = getXPos();
-        float speed = Data.POS.meanDist(xPos, lastXPos) / Time.deltaTime;
+        float speed = Data.POS.dist(xPos, lastXPos) / Time.deltaTime;
         if (speed >= speedThreshold)
         {
             movingTime += Time.deltaTime;
@@ -290,7 +284,7 @@ public class DataCollect : MonoBehaviour
     void checkHoming()
     {
         Data.X_POS xPos = getXPos();
-        float dist = Data.POS.meanDist(xPos, homePos);
+        float dist = Data.POS.dist(xPos, homePos);
         if (dist > homeThreshold)
         {
             homeScreen.text = "Away";

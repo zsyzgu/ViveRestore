@@ -28,8 +28,8 @@ public class FootController : ControlledHuman {
         {
             return 0f;
         }
-        Data.Y_POS yPos = new Data.Y_POS((record.getYPos(0) - record.getYPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1)));
-        float speed = yPos.vec[9] * yPos.vec[9] + yPos.vec[10] * yPos.vec[10] + yPos.vec[11] * yPos.vec[11];
+        Data.Y_POS ySpeed = new Data.Y_POS((record.getYPos(0) - record.getYPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1)));
+        float speed = ySpeed.vec[7] * ySpeed.vec[7] + ySpeed.vec[8] * ySpeed.vec[8] + ySpeed.vec[9] * ySpeed.vec[9];
         return speed;
     }
 

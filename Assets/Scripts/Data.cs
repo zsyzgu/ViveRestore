@@ -88,28 +88,17 @@ public class Data : MonoBehaviour {
             }
             return ret;
         }
-
+        
         public static float dist(POS p1, POS p2)
         {
             float sum = 0;
-            for (int i = 0; i < p1.N; i++)
-            {
-                sum += (p1.vec[i] - p2.vec[i]) * (p1.vec[i] - p2.vec[i]);
-            }
-            float ret = Mathf.Sqrt(sum);
-            return ret;
-        }
-
-        public static float meanDist(POS p1, POS p2)
-        {
-            float sum = 0;
             int cnt = 0;
-            for (int i = 0; i < p1.N; i += 9)
+            for (int i = 0; i < p1.N; i += 7)
             {
                 float d2 = 0;
-                d2 += (p1.vec[i + 0] - p2.vec[i + 0]) * (p1.vec[i + 0] - p2.vec[i + 0]);
-                d2 += (p1.vec[i + 1] - p2.vec[i + 1]) * (p1.vec[i + 1] - p2.vec[i + 1]);
-                d2 += (p1.vec[i + 2] - p2.vec[i + 2]) * (p1.vec[i + 2] - p2.vec[i + 2]);
+                d2 += Mathf.Pow(p1.vec[i + 0] - p2.vec[i + 0], 2f);
+                d2 += Mathf.Pow(p1.vec[i + 1] - p2.vec[i + 1], 2f);
+                d2 += Mathf.Pow(p1.vec[i + 2] - p2.vec[i + 2], 2f);
                 sum += Mathf.Sqrt(d2);
                 cnt++;
             }
@@ -121,24 +110,16 @@ public class Data : MonoBehaviour {
         {
             for (int i = 0; i < objs.Count; i++)
             {
-                Vector3 pos = new Vector3();
-                Vector3 F = new Vector3();
-                Vector3 U = new Vector3();
                 if (objs[i] != null)
                 {
-                    pos = objs[i].transform.position;
-                    F = pos + objs[i].transform.forward * 0.1f;
-                    U = pos + objs[i].transform.up * 0.1f;
+                    vec[i * 7 + 0] = objs[i].transform.position.x;
+                    vec[i * 7 + 1] = objs[i].transform.position.y;
+                    vec[i * 7 + 2] = objs[i].transform.position.z;
+                    vec[i * 7 + 3] = objs[i].transform.rotation.x;
+                    vec[i * 7 + 4] = objs[i].transform.rotation.y;
+                    vec[i * 7 + 5] = objs[i].transform.rotation.z;
+                    vec[i * 7 + 6] = objs[i].transform.rotation.w;
                 }
-                vec[i * 9 + 0] = pos.x;
-                vec[i * 9 + 1] = pos.y;
-                vec[i * 9 + 2] = pos.z;
-                vec[i * 9 + 3] = F.x;
-                vec[i * 9 + 4] = F.y;
-                vec[i * 9 + 5] = F.z;
-                vec[i * 9 + 6] = U.x;
-                vec[i * 9 + 7] = U.y;
-                vec[i * 9 + 8] = U.z;
             }
         }
     }
@@ -147,12 +128,12 @@ public class Data : MonoBehaviour {
     {
         public X_POS()
         {
-            init(27);
+            init(21);
         }
 
         public X_POS(POS p)
         {
-            init(27);
+            init(21);
             for (int i = 0; i < N; i++)
             {
                 vec[i] = p.vec[i];
@@ -161,7 +142,7 @@ public class Data : MonoBehaviour {
 
         public X_POS(GameObject head, GameObject leftHand, GameObject rightHand)
         {
-            init(27);
+            init(21);
             formXPos(head, leftHand, rightHand);
         }
 
@@ -174,21 +155,16 @@ public class Data : MonoBehaviour {
             formPos(objs);
         }
 
-        public Vector3 getHeadPos()
-        {
-            return new Vector3(vec[0], vec[1], vec[2]);
-        }
-
-        public static float handsDistRelatedToHead(X_POS p1, X_POS p2)
+        public static float handsDistToHead(X_POS p1, X_POS p2)
         {
             float sum = 0;
             int cnt = 0;
-            for (int i = 9; i < p1.N; i += 9)
+            for (int i = 7; i < p1.N; i += 7)
             {
                 float d2 = 0;
-                d2 += Mathf.Pow((p1.vec[i + 0] - p1.vec[0]) - (p2.vec[i + 0] - p2.vec[0]), 2);
-                d2 += Mathf.Pow((p1.vec[i + 1] - p1.vec[1]) - (p2.vec[i + 1] - p2.vec[1]), 2);
-                d2 += Mathf.Pow((p1.vec[i + 2] - p1.vec[2]) - (p2.vec[i + 2] - p2.vec[2]), 2);
+                d2 += Mathf.Pow((p1.vec[i + 0] - p1.vec[0]) - (p2.vec[i + 0] - p2.vec[0]), 2f);
+                d2 += Mathf.Pow((p1.vec[i + 1] - p1.vec[1]) - (p2.vec[i + 1] - p2.vec[1]), 2f);
+                d2 += Mathf.Pow((p1.vec[i + 2] - p1.vec[2]) - (p2.vec[i + 2] - p2.vec[2]), 2f);
                 sum += Mathf.Sqrt(d2);
                 cnt++;
             }
@@ -196,16 +172,16 @@ public class Data : MonoBehaviour {
             return sum;
         }
 
-        public static float handsDistInWorldSpace(X_POS p1, X_POS p2)
+        public static float handsDist(X_POS p1, X_POS p2)
         {
             float sum = 0;
             int cnt = 0;
-            for (int i = 9; i < p1.N; i += 9)
+            for (int i = 7; i < p1.N; i += 7)
             {
                 float d2 = 0;
-                d2 += Mathf.Pow(p1.vec[i + 0] - p2.vec[i + 0], 2);
-                d2 += Mathf.Pow(p1.vec[i + 1] - p2.vec[i + 1], 2);
-                d2 += Mathf.Pow(p1.vec[i + 2] - p2.vec[i + 2], 2);
+                d2 += Mathf.Pow(p1.vec[i + 0] - p2.vec[i + 0], 2f);
+                d2 += Mathf.Pow(p1.vec[i + 1] - p2.vec[i + 1], 2f);
+                d2 += Mathf.Pow(p1.vec[i + 2] - p2.vec[i + 2], 2f);
                 sum += Mathf.Sqrt(d2);
                 cnt++;
             }
@@ -215,10 +191,10 @@ public class Data : MonoBehaviour {
 
         public float[] getHandsVector()
         {
-            float[] ret = new float[18];
-            for (int i = 0; i < 18; i++)
+            float[] ret = new float[14];
+            for (int i = 0; i < 14; i++)
             {
-                ret[i] = vec[i + 9];
+                ret[i] = vec[i + 7];
             }
             return ret;
         }
@@ -228,12 +204,12 @@ public class Data : MonoBehaviour {
     {
         public Y_POS()
         {
-            init(45);
+            init(35);
         }
 
         public Y_POS(POS p)
         {
-            init(45);
+            init(35);
             for (int i = 0; i < N; i++)
             {
                 vec[i] = p.vec[i];
@@ -242,7 +218,7 @@ public class Data : MonoBehaviour {
 
         public Y_POS(GameObject leftFoot, GameObject rightFoot, GameObject leftKnee, GameObject rightKnee, GameObject waist)
         {
-            init(45);
+            init(35);
             formYPos(leftFoot, rightFoot, leftKnee, rightKnee, waist);
         }
 
@@ -272,20 +248,6 @@ public class Data : MonoBehaviour {
         private List<Y_POS> ySpeed = new List<Y_POS>();
         private float predictFrame = 0f;
         private float[] dtw;
-
-        public static float xPosDistance(Motion A, Motion B)
-        {
-            float ret = 0f;
-
-            int T = Mathf.Min(A.timestamp.Count, B.timestamp.Count);
-            for (int t = 0; t < T; t++)
-            {
-                ret += X_POS.handsDistInWorldSpace(A.xPos[t], B.xPos[t]);
-            }
-            ret /= T;
-
-            return ret;
-        }
 
         public void readTags(string[] tags, int baseId = 0)
         {
@@ -326,7 +288,7 @@ public class Data : MonoBehaviour {
             bool moving = false;
             for (int t = 1; t < T; t++)
             {
-                float speed = POS.meanDist(xPos[t], xPos[t - 1]) / (timestamp[t] - timestamp[t - 1]);
+                float speed = POS.dist(xPos[t], xPos[t - 1]) / (timestamp[t] - timestamp[t - 1]);
                 if (speed >= SPEED_THRESHOLD)
                 {
                     moveFrame++;
@@ -424,13 +386,6 @@ public class Data : MonoBehaviour {
             return new X_POS(xSpeed[intT] * (t - intT) + xSpeed[intT + 1] * (intT + 1 - t));
         }
 
-        public void resetMotion()
-        {
-            predictFrame = 1f;
-            dtw = new float[timestamp.Count];
-        }
-
-
         public Y_POS getYPos(float t)
         {
             if (t >= timestamp.Count - 1)
@@ -439,6 +394,12 @@ public class Data : MonoBehaviour {
             }
             int intT = Mathf.FloorToInt(t);
             return new Y_POS(yPos[intT] * (t - intT) + yPos[intT + 1] * (intT + 1 - t));
+        }
+
+        public void resetMotion()
+        {
+            predictFrame = 1f;
+            dtw = new float[timestamp.Count];
         }
 
         public float predictMotionFrame(ControlledHuman.Record record)
@@ -464,7 +425,7 @@ public class Data : MonoBehaviour {
             X_POS xSpeed = new X_POS((record.getXPos(0) - record.getXPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1)));
             if (dtw[1] == 0f)
             {
-                dtw[1] = X_POS.handsDistInWorldSpace(xSpeed, getXSpeed(1));
+                dtw[1] = X_POS.handsDist(xSpeed, getXSpeed(1));
                 return 1;
             }
             float[] nDtw = new float[timestamp.Count];
@@ -482,7 +443,7 @@ public class Data : MonoBehaviour {
                 {
                     nDtw[t] = dtw[t];
                 }
-                nDtw[t] += X_POS.handsDistInWorldSpace(xSpeed, getXSpeed(t));
+                nDtw[t] += X_POS.handsDist(xSpeed, getXSpeed(t));
             }
             dtw = nDtw;
             int frame = 1;

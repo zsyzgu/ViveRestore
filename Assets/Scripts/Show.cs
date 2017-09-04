@@ -40,11 +40,10 @@ public class Show : MonoBehaviour {
         }
         string[] tags = str.Split(' ');
         int cnt = 0;
-        for (int i = 1; i < tags.Length; i += 9)
+        for (int i = 1; i < tags.Length; i += 7)
         {
             cubes[cnt].transform.position = new Vector3(float.Parse(tags[i + 0]), float.Parse(tags[i + 1]), float.Parse(tags[i + 2])) + transform.position;
-            cubes[cnt].transform.LookAt(new Vector3(float.Parse(tags[i + 3]), float.Parse(tags[i + 4]), float.Parse(tags[i + 5])) + transform.position);
-            //cubes[cnt].transform.LookAt(new Vector3(float.Parse(tags[i + 6]), float.Parse(tags[i + 7]), float.Parse(tags[i + 8])) + transform.position);
+            cubes[cnt].transform.rotation = new Quaternion(float.Parse(tags[i + 3]), float.Parse(tags[i + 4]), float.Parse(tags[i + 5]), float.Parse(tags[i + 6]));
             cnt++;
         }
     }

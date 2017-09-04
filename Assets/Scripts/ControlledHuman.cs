@@ -106,7 +106,7 @@ public class ControlledHuman : MonoBehaviour {
 
             if (record.getIndex() >= 1)
             {
-                float speed = Mathf.Min(Data.X_POS.handsDistRelatedToHead(record.getXPos(0), record.getXPos(1)), Data.X_POS.handsDistInWorldSpace(record.getXPos(0), record.getXPos(1))) / (record.getTimestamp(0) - record.getTimestamp(1));
+                float speed = Mathf.Min(Data.X_POS.handsDistToHead(record.getXPos(0), record.getXPos(1)), Data.X_POS.handsDist(record.getXPos(0), record.getXPos(1))) / (record.getTimestamp(0) - record.getTimestamp(1));
                 
                 if (pressing || needPressing == false)
                 {
@@ -208,10 +208,10 @@ public class ControlledHuman : MonoBehaviour {
         objs.Add(rightKnee);
         objs.Add(waist);
         int cnt = 0;
-        for (int i = 0; i < yPos.N; i += 9)
+        for (int i = 0; i < yPos.N; i += 7)
         {
             objs[cnt].transform.position = objs[cnt].transform.position * smoothK + new Vector3(yPos.vec[i + 0], yPos.vec[i + 1], yPos.vec[i + 2]) * (1 - smoothK);
-            objs[cnt].transform.LookAt(new Vector3(yPos.vec[i + 3], yPos.vec[i + 4], yPos.vec[i + 5]));
+            objs[cnt].transform.rotation = new Quaternion(yPos.vec[i + 3], yPos.vec[i + 4], yPos.vec[i + 5], yPos.vec[i + 6]);
             cnt++;
         }
     }   

@@ -61,9 +61,7 @@
      <Compile Include="Assets\Scripts\HittingBlock.cs" />
      <Compile Include="Assets\Scripts\IKHandling.cs" />
      <Compile Include="Assets\Scripts\Limb.cs" />
-     <Compile Include="Assets\Scripts\MainControl.cs" />
      <Compile Include="Assets\Scripts\MappingHuman.cs" />
-     <Compile Include="Assets\Scripts\MoveDetect.cs" />
      <Compile Include="Assets\Scripts\Net.cs" />
      <Compile Include="Assets\Scripts\ParkourControl.cs" />
      <Compile Include="Assets\Scripts\SandbagHitting.cs" />

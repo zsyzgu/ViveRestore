@@ -85,7 +85,7 @@ public class ParkourControl : ControlledHuman {
                 shouldReset = true;
             } else
             {
-                if (Data.X_POS.handsDistRelatedToHead(record.getXPos(0), stdMotions[currMotion].xStart) < 0.2f && record.getXPos(0).vec[11] < record.getXPos(1).vec[11])
+                if (Data.X_POS.handsDistToHead(record.getXPos(0), stdMotions[currMotion].xStart) < 0.2f && record.getXPos(0).vec[11] < record.getXPos(1).vec[11])
                 {
                     shouldReset = true;
                 }
