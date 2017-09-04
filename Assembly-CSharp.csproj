@@ -49,6 +49,7 @@
      <Compile Include="Assets\Scripts\BallControl.cs" />
      <Compile Include="Assets\Scripts\BallKicking.cs" />
      <Compile Include="Assets\Scripts\CaliControl.cs" />
+     <Compile Include="Assets\Scripts\CaliSkeleton.cs" />
      <Compile Include="Assets\Scripts\CaliStdMotion.cs" />
      <Compile Include="Assets\Scripts\ControlledHuman.cs" />
      <Compile Include="Assets\Scripts\Data.cs" />

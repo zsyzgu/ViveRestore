@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-public class FootController : ControlledHuman { 
+public class FootController : ControlledHuman {
+    public CaliSkeleton caliSkeleton;
     private List<Data.Motion> caliMotions = new List<Data.Motion>();
     private Data.Motion stdMotion = null;
 
@@ -33,10 +34,11 @@ public class FootController : ControlledHuman {
                 {
                     caliMotions[i].resetMotion();
                 }
+                caliSkeleton.playMotion(caliMotions[0], record.getXPos(0));
             }
             float minScore = 1e9f;
             float predictFrame = 1f;
-            for (int i = 0; i <CALI_NUM; i++)
+            for (int i = 0; i < CALI_NUM; i++)
             {
                 float score = 0f;
                 float frame = caliMotions[i].predictMotionFrame(record, out score);
