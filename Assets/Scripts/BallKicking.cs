@@ -19,8 +19,9 @@ public class BallKicking : MonoBehaviour {
     {
         if (obj.name == "Ball")
         {
+            Debug.Log(speed);
             obj.GetComponent<BallControl>().move();
-            obj.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 1.2f * speed, 2f * speed));
+            obj.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 5f * speed, 10f * speed));
         }
     }
 }

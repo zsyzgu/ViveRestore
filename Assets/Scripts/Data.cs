@@ -189,6 +189,19 @@ public class Data : MonoBehaviour {
             return sum;
         }
 
+        public static float dtwDist(X_POS p1, X_POS p2)
+        {
+            float sum = 0;
+            for (int i = 7; i < p1.N; i += 7)
+            {
+                float s1 = Mathf.Sqrt(p1.vec[i + 0] * p1.vec[i + 0] + p1.vec[i + 1] * p1.vec[i + 1] + p1.vec[i + 2] * p1.vec[i + 2]);
+                float s2 = Mathf.Sqrt(p2.vec[i + 0] * p2.vec[i + 0] + p2.vec[i + 1] * p2.vec[i + 1] + p2.vec[i + 2] * p2.vec[i + 2]);
+                sum += (s1 - s2) * (s1 - s2);
+            }
+            sum = Mathf.Sqrt(sum);
+            return sum;
+        }
+
         public float[] getHandsVector()
         {
             float[] ret = new float[14];
@@ -426,7 +439,7 @@ public class Data : MonoBehaviour {
             X_POS xSpeed = new X_POS((record.getXPos(0) - record.getXPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1)));
             if (dtw[1] == 0f)
             {
-                dtw[1] = X_POS.handsDist(xSpeed, getXSpeed(1));
+                dtw[1] = X_POS.dtwDist(xSpeed, getXSpeed(1));
                 return 1;
             }
             float[] nDtw = new float[timestamp.Count];
@@ -444,7 +457,7 @@ public class Data : MonoBehaviour {
                 {
                     nDtw[t] = dtw[t];
                 }
-                nDtw[t] += X_POS.handsDist(xSpeed, getXSpeed(t));
+                nDtw[t] += X_POS.dtwDist(xSpeed, getXSpeed(t));
             }
             dtw = nDtw;
             int frame = 1;
