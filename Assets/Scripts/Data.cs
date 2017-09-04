@@ -402,9 +402,10 @@ public class Data : MonoBehaviour {
             dtw = new float[timestamp.Count];
         }
 
-        public float predictMotionFrame(ControlledHuman.Record record)
+        public float predictMotionFrame(ControlledHuman.Record record, out float score)
         {
-            float dtwFrame = calnFrame(record);
+            int dtwFrame = calnFrame(record);
+            score = dtw[dtwFrame];
             predictFrame += 1f;
             if (dtwFrame > predictFrame + 0.5f)
             {

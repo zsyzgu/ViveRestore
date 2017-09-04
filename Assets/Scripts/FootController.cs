@@ -3,34 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-public class FootController : ControlledHuman {
-    public string[] motionName;
-
-    private Dictionary<string, Data.Motion> stdMotions = new Dictionary<string, Data.Motion>();
-    private Data.Motion calibratedMotion = null;
+public class FootController : ControlledHuman { 
+    private List<Data.Motion> caliMotions = new List<Data.Motion>();
     private Data.Motion stdMotion = null;
-    
-    private string currMotionName = "long_kick_right";
 
     private void loadStdMotions()
     {
-        foreach (string name in motionName)
+        stdMotion = loadStdMotion("Std/long_kick_right.txt");
+        for (int i = 0; i < CALI_NUM; i++)
         {
-            stdMotions[name] = loadStdMotion("Std/" + name + ".txt");
+            caliMotions.Add(loadCaliMotion("Cali/soccer.txt", "long_kick_right", i));
         }
-        calibratedMotion = loadCaliMotion("Cali/soccer.txt", currMotionName);
-        stdMotion = stdMotions[currMotionName];
-    }
-
-    public float calnRightFootSpeed()
-    {
-        if (record.getIndex() < 1)
-        {
-            return 0f;
-        }
-        Data.Y_POS ySpeed = new Data.Y_POS((record.getYPos(0) - record.getYPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1)));
-        float speed = ySpeed.vec[7] * ySpeed.vec[7] + ySpeed.vec[8] * ySpeed.vec[8] + ySpeed.vec[9] * ySpeed.vec[9];
-        return speed;
     }
 
 	new void Start () {
@@ -41,16 +24,32 @@ public class FootController : ControlledHuman {
 	
 	new void Update () {
         base.Update();
-
-        bool moving = movingDetect.isMoving();
-        if (moving)
+        
+        if (movingDetect.isMoving())
         {
-            float predictFrame = calibratedMotion.predictMotionFrame(record);
+            if (movingDetect.isFirstMove())
+            {
+                for (int i = 0; i < CALI_NUM; i++)
+                {
+                    caliMotions[i].resetMotion();
+                }
+            }
+            float minScore = 1e9f;
+            float predictFrame = 1f;
+            for (int i = 0; i <CALI_NUM; i++)
+            {
+                float score = 0f;
+                float frame = caliMotions[i].predictMotionFrame(record, out score);
+                if (score < minScore)
+                {
+                    minScore = score;
+                    predictFrame = frame;
+                }
+            }
             Data.Y_POS predictYPos = stdMotion.getYPos(predictFrame);
             setLowerBody(new Data.Y_POS(predictYPos + stdMotion.yStart));
         } else
         {
-            calibratedMotion.resetMotion();
             setLowerBody(stdMotion.yStart);
         }
 	}

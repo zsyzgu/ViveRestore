@@ -4,6 +4,7 @@ using UnityEngine;
 using System.IO;
 
 public class ControlledHuman : MonoBehaviour {
+    protected const int CALI_NUM = 3;
     public GameObject head;
     public GameObject leftHand;
     public GameObject rightHand;
@@ -79,6 +80,7 @@ public class ControlledHuman : MonoBehaviour {
         private int moveFrames = 0;
         private int stopFrames = 0;
         private bool moving = false;
+        private bool firstMove = false;
         private int startIndex = 0;
         private bool pressing = false;
         private bool needPressing = true;
@@ -95,6 +97,7 @@ public class ControlledHuman : MonoBehaviour {
 
         public void update(Record record)
         {
+            firstMove = false;
             if (Utility.isStart())
             {
                 pressing = true;
@@ -119,6 +122,7 @@ public class ControlledHuman : MonoBehaviour {
                             if (moving == false)
                             {
                                 moving = true;
+                                firstMove = true;
                                 startMoving(record);
                             }
                         }
@@ -143,6 +147,11 @@ public class ControlledHuman : MonoBehaviour {
         public bool isMoving()
         {
             return moving;
+        }
+
+        public bool isFirstMove()
+        {
+            return firstMove;
         }
 
         public int getStartIndex()
@@ -181,7 +190,7 @@ public class ControlledHuman : MonoBehaviour {
         return motion;
     }
 
-    protected Data.Motion loadCaliMotion(string fileName, string motionName, int id = 0)
+    protected Data.Motion loadCaliMotion(string fileName, string motionName, int id)
     {
         Data.Motion motion = new Data.Motion();
         StreamReader sr = File.OpenText(fileName);

@@ -9,34 +9,42 @@ public class ParkourControl : ControlledHuman {
     public GameObject canvas;
 
     private Dictionary<string, Data.Motion> stdMotions = new Dictionary<string, Data.Motion>();
-    private Dictionary<string, Data.Motion> caliMotions = new Dictionary<string, Data.Motion>();
+    private Dictionary<string, List<Data.Motion>> caliMotions = new Dictionary<string, List<Data.Motion>>();
     private string currMotion = "walking";
     private float totalDist = 0f;
+
+    private void resetMotions()
+    {
+        foreach (string name in motionName)
+        {
+            for (int i = 0; i < CALI_NUM; i++)
+            {
+                caliMotions[name][i].resetMotion();
+            }
+        }
+    }
 
     private void loadMotions()
     {
         foreach (string name in motionName)
         {
             stdMotions[name] = loadStdMotion("Std/" + name + ".txt");
-            caliMotions[name] = loadCaliMotion("Cali/parkour.txt", name);
+            caliMotions[name] = new List<Data.Motion>();
+            for (int i = 0; i < CALI_NUM; i++)
+            {
+                caliMotions[name].Add(loadCaliMotion("Cali/parkour.txt", name, i));
+            }
         }
     }
-
-    private bool firstMove = true;
+    
     void updateHMM()
     {
-        bool moving = movingDetect.isMoving();
-        if (moving)
+        if (movingDetect.isMoving())
         {
-            if (firstMove)
+            if (movingDetect.isFirstMove())
             {
                 HmmClient.hmmStart();
-                firstMove = false;
-
-                for (int i = 0; i < motionName.Length; i++)
-                {
-                    caliMotions[motionName[i]].resetMotion();
-                }
+                resetMotions();
             }
             HmmClient.newFrame(new Data.X_POS((record.getXPos(0) - record.getXPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1))).getHandsVector());
             HmmClient.getAction();
@@ -47,8 +55,6 @@ public class ParkourControl : ControlledHuman {
         }
         else
         {
-            firstMove = true;
-
             if ((leftHand.transform.position.y + rightHand.transform.position.y) / 2 > waist.transform.position.y)
             {
                 currMotion = "running";
@@ -64,20 +70,25 @@ public class ParkourControl : ControlledHuman {
     private float forward = 0f;
     void retrieval()
     {
+        float minScore = 1e9f;
         float predictFrame = 1f;
-        for (int i = 0; i < motionName.Length; i++)
+        foreach(string name in motionName)
         {
-            float t = caliMotions[motionName[i]].predictMotionFrame(record);
-            if (motionName[i] == currMotion)
+            for (int i = 0; i < CALI_NUM; i++)
             {
-                predictFrame = t;
+                float score = 0f;
+                float frame = caliMotions[name][i].predictMotionFrame(record, out score);
+                if (name == currMotion && score < minScore)
+                {
+                    minScore = score;
+                    predictFrame = frame;
+                }
             }
         }
         Data.Y_POS predictYPos = stdMotions[currMotion].getYPos(predictFrame);
         setLowerBody(new Data.Y_POS(predictYPos + stdMotions[currMotion].yStart + new Vector3(head.transform.position.x, 0f, forward)));
-
-        bool moving = movingDetect.isMoving();
-        if (!moving)
+        
+        if (movingDetect.isMoving() == false)
         {
             bool shouldReset = false;
             if (predictFrame > stdMotions[currMotion].timestamp.Count - 1)
@@ -92,10 +103,7 @@ public class ParkourControl : ControlledHuman {
             }
             if (shouldReset)
             {
-                for (int i = 0; i < motionName.Length; i++)
-                {
-                    caliMotions[motionName[i]].resetMotion();
-                }
+                resetMotions();
             }
         }
 
@@ -134,10 +142,7 @@ public class ParkourControl : ControlledHuman {
         base.Start();
 
         loadMotions();
-        for (int i = 0; i < motionName.Length; i++)
-        {
-            caliMotions[motionName[i]].resetMotion();
-        }
+        resetMotions();
     }
 
     new void Update()
