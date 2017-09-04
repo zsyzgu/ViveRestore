@@ -4,19 +4,16 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class SandbagStatus : MonoBehaviour {
-    public Image leftFist;
-    public Image rightFist;
     public Image leftFrontKick;
     public Image rightFrontKick;
     public Image leftKneeLift;
     public Image rightKneeLift;
     public Image leftSideKick;
     public Image rightSideKick;
+    private bool canHit = true;
 
     void resetColor()
     {
-        leftFist.color = Color.white;
-        rightFist.color = Color.white;
         leftFrontKick.color = Color.white;
         rightFrontKick.color = Color.white;
         leftKneeLift.color = Color.white;
@@ -28,18 +25,20 @@ public class SandbagStatus : MonoBehaviour {
 	void Start () {
         resetColor();
 	}
-	
-    public void hit(string motion, float force)
+
+    public void setCanHit()
     {
+        canHit = true;
+    }
+
+    public void hit(string motion)
+    {
+        if (!canHit)
+        {
+            return;
+        }
+        canHit = false;
         Image image = null;
-        if (motion == "fist_left")
-        {
-            image = leftFist;
-        }
-        if (motion == "fist_right")
-        {
-            image = rightFist;
-        }
         if (motion == "front_kick_left")
         {
             image = leftFrontKick;
@@ -66,7 +65,7 @@ public class SandbagStatus : MonoBehaviour {
         }
         if (image != null)
         {
-            image.color = new Color(Mathf.Max(0f, image.color.r - force / 50f), Mathf.Max(0f, image.color.g - force / 50f), 1f);
+            image.color = new Color(Mathf.Max(0f, image.color.r - 0.2f), Mathf.Max(0f, image.color.g - 0.2f), 1f);
         }
     }
 

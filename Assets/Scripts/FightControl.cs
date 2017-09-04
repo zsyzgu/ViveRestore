@@ -7,7 +7,7 @@ using System.IO;
 public class FightControl : ControlledHuman {
     public string[] motionName;
     public Text motionScreen;
-    public GameObject canvas;
+    public SandbagStatus sandbag;
 
     private Dictionary<string, Data.Motion> stdMotions = new Dictionary<string, Data.Motion>();
     private Dictionary<string, List<Data.Motion>> caliMotions = new Dictionary<string, List<Data.Motion>>();
@@ -41,12 +41,15 @@ public class FightControl : ControlledHuman {
                         caliMotions[name][i].resetMotion();
                     }
                 }
+
+                sandbag.setCanHit();
             }
             HmmClient.newFrame(new Data.X_POS((record.getXPos(0) - record.getXPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1))).getHandsVector());
             HmmClient.getAction();
             if (HmmClient.Action != "")
             {
                 currMotion = HmmClient.Action;
+                Debug.Log(currMotion);
             }
         }
         else
@@ -90,24 +93,11 @@ public class FightControl : ControlledHuman {
 
     public void hitSandbag(float speed)
     {
-        bool moving = movingDetect.isMoving();
-
-        string motion = "";
-        if (moving)
+        if (movingDetect.isMoving())
         {
-            motion = currMotion;
-        } else
-        {
-            if (currMotion == "side_kick_left")
-            {
-                motion = "fist_right";
-            } else
-            {
-                motion = "fist_left";
-            }
+            sandbag.hit(currMotion);
         }
 
-        canvas.GetComponent<SandbagStatus>().hit(motion, speed);
     }
 
     new void Start()
