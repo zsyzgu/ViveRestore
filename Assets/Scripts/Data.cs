@@ -26,7 +26,7 @@ public class Data : MonoBehaviour
             vec = new float[N];
         }
 
-        public static POS operator -(POS p1, POS p2)
+        public static POS operator - (POS p1, POS p2)
         {
             POS p = new POS(p1.N);
             for (int i = 0; i < p.N; i++)
@@ -36,7 +36,7 @@ public class Data : MonoBehaviour
             return p;
         }
 
-        public static POS operator +(POS p1, POS p2)
+        public static POS operator + (POS p1, POS p2)
         {
             POS p = new POS(p1.N);
             for (int i = 0; i < p.N; i++)
@@ -46,7 +46,7 @@ public class Data : MonoBehaviour
             return p;
         }
 
-        public static POS operator /(POS p1, float k)
+        public static POS operator / (POS p1, float k)
         {
             POS p = new POS(p1.N);
             for (int i = 0; i < p.N; i++)
@@ -56,7 +56,7 @@ public class Data : MonoBehaviour
             return p;
         }
 
-        public static POS operator *(POS p1, float k)
+        public static POS operator * (POS p1, float k)
         {
             POS p = new POS(p1.N);
             for (int i = 0; i < p.N; i++)
@@ -66,7 +66,7 @@ public class Data : MonoBehaviour
             return p;
         }
 
-        public static POS operator +(POS p, Vector3 v)
+        public static POS operator + (POS p, Vector3 v)
         {
             POS ret = new POS(p.N);
             for (int i = 0; i < ret.N; i += 3)
@@ -78,7 +78,7 @@ public class Data : MonoBehaviour
             return ret;
         }
 
-        public static POS operator -(POS p, Vector3 v)
+        public static POS operator - (POS p, Vector3 v)
         {
             POS ret = new POS(p.N);
             for (int i = 0; i < ret.N; i += 3)
@@ -259,6 +259,12 @@ public class Data : MonoBehaviour
         public Y_POS yStart = new Y_POS();
         private List<X_POS> xSpeed = new List<X_POS>();
         private List<Y_POS> ySpeed = new List<Y_POS>();
+
+        private List<X_POS> xPosSmooth = new List<X_POS>();
+        private List<Y_POS> yPosSmooth = new List<Y_POS>();
+        private List<X_POS> xSpeedSmooth = new List<X_POS>();
+        private List<Y_POS> ySpeedSmooth = new List<Y_POS>();
+        
         private float predictFrame = 0f;
         private float[] dtw = null;
 
@@ -284,16 +290,44 @@ public class Data : MonoBehaviour
             return predictFrame;
         }
 
+        private X_POS xRollingMean(List<X_POS> posList)
+        {
+            int n = posList.Count;
+            int cnt = 1;
+            POS pos = posList[n - 1];
+            for (int i = n - 2; i >= 0 && i >= n - 9; i--)
+            {
+                cnt++;
+                pos = pos + posList[i];
+            }
+            pos = pos / cnt;
+            return new X_POS(pos);
+        }
+
+        private Y_POS yRollingMean(List<Y_POS> posList)
+        {
+            int n = posList.Count;
+            int cnt = 1;
+            POS pos = posList[n - 1];
+            for (int i = n - 2; i >= 0 && i >= n - 9; i--)
+            {
+                cnt++;
+                pos = pos + posList[i];
+            }
+            pos = pos / cnt;
+            return new Y_POS(pos);
+        }
+
         private int calnFrame(ControlledHuman.Record record)
         {
             if (record.getIndex() < 1)
             {
                 return 0;
             }
-            X_POS xSpeed = new X_POS((record.getXPos(0) - record.getXPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1)));
+            X_POS currSpeed = record.getXSpeedSmooth(0);
             if (dtw[1] == 0f)
             {
-                dtw[1] = X_POS.dtwDist(xSpeed, getXSpeed(1));
+                dtw[1] = X_POS.dtwDist(currSpeed, xSpeedSmooth[1]);
                 return 1;
             }
             float[] nDtw = new float[timestamp.Count];
@@ -311,7 +345,7 @@ public class Data : MonoBehaviour
                 {
                     nDtw[t] = dtw[t];
                 }
-                nDtw[t] += X_POS.dtwDist(xSpeed, getXSpeed(t));
+                nDtw[t] += X_POS.dtwDist(currSpeed, xSpeedSmooth[t]);
             }
             dtw = nDtw;
             int frame = 1;
@@ -340,6 +374,8 @@ public class Data : MonoBehaviour
             }
             xPos.Add(x);
             yPos.Add(y);
+            xPosSmooth.Add(xRollingMean(xPos));
+            yPosSmooth.Add(yRollingMean(yPos));
         }
 
         public void formMotion(ControlledHuman.Record record, int startIndex, int endIndex)
@@ -350,6 +386,8 @@ public class Data : MonoBehaviour
                 timestamp.Add(record.getTimestamp(currIndex - i) - record.getTimestamp(currIndex - startIndex));
                 xPos.Add(record.getXPos(currIndex - i));
                 yPos.Add(record.getYPos(currIndex - i));
+                xPosSmooth.Add(xRollingMean(xPos));
+                yPosSmooth.Add(yRollingMean(yPos));
             }
         }
 
@@ -437,14 +475,18 @@ public class Data : MonoBehaviour
         private void calnSpeed()
         {
             xSpeed.Add(new X_POS());
+            xSpeedSmooth.Add(new X_POS());
             for (int t = 1; t < timestamp.Count; t++)
             {
                 xSpeed.Add(new X_POS((xPos[t] - xPos[t - 1]) / (timestamp[t] - timestamp[t - 1])));
+                xSpeedSmooth.Add(xRollingMean(xSpeed));
             }
             ySpeed.Add(new Y_POS());
+            ySpeedSmooth.Add(new Y_POS());
             for (int t = 1; t < timestamp.Count; t++)
             {
                 ySpeed.Add(new Y_POS((yPos[t] - yPos[t - 1]) / (timestamp[t] - timestamp[t - 1])));
+                ySpeedSmooth.Add(yRollingMean(ySpeed));
             }
         }
 
@@ -453,16 +495,6 @@ public class Data : MonoBehaviour
             bool ok = segment();
             calnSpeed();
             return ok;
-        }
-
-        private X_POS getXSpeed(float t)
-        {
-            if (t >= timestamp.Count - 1)
-            {
-                return xSpeed[timestamp.Count - 1];
-            }
-            int intT = Mathf.FloorToInt(t);
-            return new X_POS(xSpeed[intT] * (t - intT) + xSpeed[intT + 1] * (intT + 1 - t));
         }
 
         public Y_POS getYPos(float t)

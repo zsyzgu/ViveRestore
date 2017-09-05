@@ -28,7 +28,39 @@ public class ControlledHuman : MonoBehaviour
         private float[] timestamp = new float[RECORD_FRAMS];
         private Data.X_POS[] xPosList = new Data.X_POS[RECORD_FRAMS];
         private Data.Y_POS[] yPosList = new Data.Y_POS[RECORD_FRAMS];
+        private Data.X_POS[] xSpeedList = new Data.X_POS[RECORD_FRAMS];
+        private Data.Y_POS[] ySpeedList = new Data.Y_POS[RECORD_FRAMS];
+        private Data.X_POS[] xPosSmooth = new Data.X_POS[RECORD_FRAMS];
+        private Data.Y_POS[] yPosSmooth = new Data.Y_POS[RECORD_FRAMS];
+        private Data.X_POS[] xSpeedSmooth = new Data.X_POS[RECORD_FRAMS];
+        private Data.Y_POS[] ySpeedSmooth = new Data.Y_POS[RECORD_FRAMS];
         private int index = -1;
+
+        private Data.X_POS xRollingMean(Data.X_POS[] posList)
+        {
+            int cnt = 1;
+            Data.POS pos = posList[index % RECORD_FRAMS];
+            for (int i = index - 1; i > index - 9 && i >= 0; i--)
+            {
+                cnt++;
+                pos = pos + posList[i %  RECORD_FRAMS];
+            }
+            pos = pos / cnt;
+            return new Data.X_POS(pos);
+        }
+
+        private Data.Y_POS yRollingMean(Data.Y_POS[] posList)
+        {
+            int cnt = 1;
+            Data.POS pos = posList[index % RECORD_FRAMS];
+            for (int i = index - 1; i > index - 9 && i >= 0; i--)
+            {
+                cnt++;
+                pos = pos + posList[i % RECORD_FRAMS];
+            }
+            pos = pos / cnt;
+            return new Data.Y_POS(pos);
+        }
 
         public void recordData(float t, Data.X_POS xPos, Data.Y_POS yPos)
         {
@@ -37,6 +69,20 @@ public class ControlledHuman : MonoBehaviour
             timestamp[i] = t;
             xPosList[i] = xPos;
             yPosList[i] = yPos;
+            if (index - 1 >= 0)
+            {
+                float timeInterval = timestamp[i] - timestamp[(index - 1) % RECORD_FRAMS];
+                xSpeedList[i] = new Data.X_POS((xPosList[i] - xPosList[(index - 1) % RECORD_FRAMS]) / timeInterval);
+                ySpeedList[i] = new Data.Y_POS((yPosList[i] = yPosList[(index - 1) % RECORD_FRAMS]) / timeInterval);
+            } else
+            {
+                xSpeedList[i] = new Data.X_POS();
+                ySpeedList[i] = new Data.Y_POS();
+            }
+            xPosSmooth[i] = xRollingMean(xPosList);
+            yPosSmooth[i] = yRollingMean(yPosList);
+            xSpeedSmooth[i] = xRollingMean(xSpeedList);
+            ySpeedSmooth[i] = yRollingMean(ySpeedList);
         }
 
         public int getIndex()
@@ -52,6 +98,16 @@ public class ControlledHuman : MonoBehaviour
                 return 0;
             }
             return timestamp[(index - frame) % RECORD_FRAMS];
+        }
+
+        public Data.X_POS getXSpeedSmooth(int frame)
+        {
+            if (frame > index)
+            {
+                Debug.Log("Not recorded");
+                return new Data.X_POS();
+            }
+            return xSpeedSmooth[(index - frame) % RECORD_FRAMS];
         }
 
         public Data.X_POS getXPos(int frame)
@@ -269,7 +325,7 @@ public class ControlledHuman : MonoBehaviour
             {
                 HmmClient.hmmStart();
             }
-            HmmClient.newFrame(new Data.X_POS((record.getXPos(0) - record.getXPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1))).getHandsVector());
+            HmmClient.newFrame(record.getXSpeedSmooth(0).getHandsVector());
             HmmClient.getAction();
             if (HmmClient.Action != "")
             {
