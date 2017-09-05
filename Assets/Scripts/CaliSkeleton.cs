@@ -9,9 +9,13 @@ public class CaliSkeleton : MonoBehaviour {
     private Data.X_POS xStart;
     private int t = -1;
 
-    public void playMotion(Data.Motion motion, Data.X_POS xStart)
+    public void setMotion(Data.Motion motion)
     {
         this.motion = motion;
+    }
+
+    public void playMotion(Data.X_POS xStart)
+    {
         this.xStart = xStart;
         t = 0;
     }

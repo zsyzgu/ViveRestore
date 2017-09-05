@@ -16,6 +16,7 @@ public class ControlledHuman : MonoBehaviour
     public GameObject waist;
     public string[] motionName;
     public string caliFileName;
+    public CaliSkeleton caliSkeleton;
 
     protected Dictionary<string, Data.Motion> stdMotions = new Dictionary<string, Data.Motion>();
     protected Dictionary<string, List<Data.Motion>> caliMotions = new Dictionary<string, List<Data.Motion>>();
@@ -242,6 +243,7 @@ public class ControlledHuman : MonoBehaviour
         Data.Y_POS yPos = new Data.Y_POS(leftFoot, rightFoot, leftKnee, rightKnee, waist);
         record.recordData(timestamp, xPos, yPos);
         movingDetect.update(record);
+        updateCaliSkeleton();
     }
 
     protected Data.Motion loadStdMotion(string fileName)
@@ -313,6 +315,18 @@ public class ControlledHuman : MonoBehaviour
             for (int i = 0; i < CALI_NUM; i++)
             {
                 caliMotions[name][i].resetMotion();
+            }
+        }
+    }
+
+    private void updateCaliSkeleton()
+    {
+        if (caliSkeleton != null)
+        {
+            caliSkeleton.setMotion(stdMotions[currMotion]);
+            if (movingDetect.isFirstMove())
+            {
+                caliSkeleton.playMotion(record.getXPos(0));
             }
         }
     }
