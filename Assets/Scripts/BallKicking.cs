@@ -7,9 +7,10 @@ public class BallKicking : MonoBehaviour {
     private Vector3 lastPos;
     private int id = 0;
     private float[] speeds = new float[N];
+    private ControlledHuman controlledHuman;
 
 	void Start () {
-
+        controlledHuman = transform.parent.GetComponent<ControlledHuman>();
 	}
 	
 	void Update () {
@@ -31,9 +32,15 @@ public class BallKicking : MonoBehaviour {
                 speed += speeds[i];
             }
             speed /= N;
-            Debug.Log(speed);
             obj.GetComponent<BallControl>().move();
-            obj.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 5f * speed * speed, 10f * speed * speed));
+            if (controlledHuman.getCurrMotion() == "long_kick_right")
+            {
+                obj.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 5f * speed, 20f * speed));
+            }
+            else
+            {
+                obj.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 2f * speed, 15f * speed));
+            }
         }
     }
 }

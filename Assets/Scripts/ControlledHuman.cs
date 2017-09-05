@@ -22,6 +22,11 @@ public class ControlledHuman : MonoBehaviour
     protected Dictionary<string, List<Data.Motion>> caliMotions = new Dictionary<string, List<Data.Motion>>();
     protected string currMotion;
 
+    public string getCurrMotion()
+    {
+        return currMotion;
+    }
+
     public class Record
     {
         const int RECORD_FRAMS = 10000;
