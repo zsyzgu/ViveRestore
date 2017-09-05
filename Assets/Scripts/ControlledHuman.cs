@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-public class ControlledHuman : MonoBehaviour {
+public class ControlledHuman : MonoBehaviour
+{
     protected const int CALI_NUM = 3;
     public GameObject head;
     public GameObject leftHand;
@@ -13,6 +14,12 @@ public class ControlledHuman : MonoBehaviour {
     public GameObject leftKnee;
     public GameObject rightKnee;
     public GameObject waist;
+    public string[] motionName;
+    public string caliFileName;
+
+    protected Dictionary<string, Data.Motion> stdMotions = new Dictionary<string, Data.Motion>();
+    protected Dictionary<string, List<Data.Motion>> caliMotions = new Dictionary<string, List<Data.Motion>>();
+    protected string currMotion;
 
     public class Record
     {
@@ -165,6 +172,8 @@ public class ControlledHuman : MonoBehaviour {
     {
         Utility.leftHand = leftHand;
         Utility.rightHand = rightHand;
+        loadMotions();
+        currMotion = motionName[0];
     }
 
     protected void Update()
@@ -223,5 +232,83 @@ public class ControlledHuman : MonoBehaviour {
             objs[cnt].transform.rotation = new Quaternion(yPos.vec[i + 3], yPos.vec[i + 4], yPos.vec[i + 5], yPos.vec[i + 6]);
             cnt++;
         }
-    }   
+    }
+
+    protected void loadMotions()
+    {
+        foreach (string name in motionName)
+        {
+            stdMotions[name] = loadStdMotion("Std/" + name + ".txt");
+            caliMotions[name] = new List<Data.Motion>();
+            for (int i = 0; i < CALI_NUM; i++)
+            {
+                caliMotions[name].Add(loadCaliMotion("Cali/" + caliFileName + ".txt", name, i));
+            }
+        }
+    }
+
+    protected void resetCaliMotions()
+    {
+        foreach (string name in motionName)
+        {
+            for (int i = 0; i < CALI_NUM; i++)
+            {
+                caliMotions[name][i].resetMotion();
+            }
+        }
+    }
+
+    protected void updateHMM()
+    {
+        if (movingDetect.isMoving())
+        {
+            if (movingDetect.isFirstMove())
+            {
+                HmmClient.hmmStart();
+            }
+            HmmClient.newFrame(new Data.X_POS((record.getXPos(0) - record.getXPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1))).getHandsVector());
+            HmmClient.getAction();
+            if (HmmClient.Action != "")
+            {
+                currMotion = HmmClient.Action;
+            }
+        }
+    }
+
+    protected void retrieval()
+    {
+        if (movingDetect.isMoving())
+        {
+            if (movingDetect.isFirstMove())
+            {
+                resetCaliMotions();
+            }
+            float minScore = 1e9f;
+            float predictFrame = 1f;
+            foreach (string name in motionName)
+            {
+                for (int i = 0; i < CALI_NUM; i++)
+                {
+                    float score = 0f;
+                    float frame = caliMotions[name][i].predictMotionFrame(record, out score);
+                    if (name == currMotion && score < minScore)
+                    {
+                        minScore = score;
+                        predictFrame = frame;
+                    }
+                }
+            }
+            Data.Y_POS predictYPos = stdMotions[currMotion].getYPos(predictFrame);
+            setLowerBody(new Data.Y_POS(predictYPos + stdMotions[currMotion].yStart));
+        }
+        else
+        {
+            setLowerBody(stdMotions[currMotion].yStart);
+        }
+    }
+    
+    void OnDestroy()
+    {
+        Net.closeSocket();
+    }
 }

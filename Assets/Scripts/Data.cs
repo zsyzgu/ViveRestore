@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-public class Data : MonoBehaviour {
+public class Data : MonoBehaviour
+{
     public class POS
     {
         public int N;
@@ -25,7 +26,7 @@ public class Data : MonoBehaviour {
             vec = new float[N];
         }
 
-        public static POS operator - (POS p1, POS p2)
+        public static POS operator -(POS p1, POS p2)
         {
             POS p = new POS(p1.N);
             for (int i = 0; i < p.N; i++)
@@ -35,7 +36,7 @@ public class Data : MonoBehaviour {
             return p;
         }
 
-        public static POS operator + (POS p1, POS p2)
+        public static POS operator +(POS p1, POS p2)
         {
             POS p = new POS(p1.N);
             for (int i = 0; i < p.N; i++)
@@ -45,7 +46,7 @@ public class Data : MonoBehaviour {
             return p;
         }
 
-        public static POS operator / (POS p1, float k)
+        public static POS operator /(POS p1, float k)
         {
             POS p = new POS(p1.N);
             for (int i = 0; i < p.N; i++)
@@ -55,7 +56,7 @@ public class Data : MonoBehaviour {
             return p;
         }
 
-        public static POS operator * (POS p1, float k)
+        public static POS operator *(POS p1, float k)
         {
             POS p = new POS(p1.N);
             for (int i = 0; i < p.N; i++)
@@ -65,7 +66,7 @@ public class Data : MonoBehaviour {
             return p;
         }
 
-        public static POS operator + (POS p, Vector3 v)
+        public static POS operator +(POS p, Vector3 v)
         {
             POS ret = new POS(p.N);
             for (int i = 0; i < ret.N; i += 3)
@@ -77,7 +78,7 @@ public class Data : MonoBehaviour {
             return ret;
         }
 
-        public static POS operator - (POS p, Vector3 v)
+        public static POS operator -(POS p, Vector3 v)
         {
             POS ret = new POS(p.N);
             for (int i = 0; i < ret.N; i += 3)
@@ -88,7 +89,7 @@ public class Data : MonoBehaviour {
             }
             return ret;
         }
-        
+
         public static float dist(POS p1, POS p2)
         {
             float sum = 0;
@@ -194,10 +195,6 @@ public class Data : MonoBehaviour {
             float sum = 0;
             for (int i = 7; i < p1.N; i += 7)
             {
-                float d2 = 0;
-                d2 += Mathf.Pow(p1.vec[i + 0] - p2.vec[i + 0], 2f);
-                d2 += Mathf.Pow(p1.vec[i + 1] - p2.vec[i + 1], 2f);
-                d2 += Mathf.Pow(p1.vec[i + 2] - p2.vec[i + 2], 2f);
                 float s1 = Mathf.Sqrt(p1.vec[i + 0] * p1.vec[i + 0] + p1.vec[i + 1] * p1.vec[i + 1] + p1.vec[i + 2] * p1.vec[i + 2]);
                 float s2 = Mathf.Sqrt(p2.vec[i + 0] * p2.vec[i + 0] + p2.vec[i + 1] * p2.vec[i + 1] + p2.vec[i + 2] * p2.vec[i + 2]);
                 sum += (s1 - s2) * (s1 - s2);
@@ -263,7 +260,70 @@ public class Data : MonoBehaviour {
         private List<X_POS> xSpeed = new List<X_POS>();
         private List<Y_POS> ySpeed = new List<Y_POS>();
         private float predictFrame = 0f;
-        private float[] dtw;
+        private float[] dtw = null;
+
+        public void resetMotion()
+        {
+            predictFrame = 1f;
+            dtw = new float[timestamp.Count];
+        }
+
+        public float predictMotionFrame(ControlledHuman.Record record, out float score)
+        {
+            int dtwFrame = calnFrame(record);
+            score = dtw[dtwFrame];
+            predictFrame += 1f;
+            if (dtwFrame > predictFrame + 1.0f)
+            {
+                predictFrame += 1.0f;
+            }
+            else if (dtwFrame < predictFrame - 0.5f)
+            {
+                predictFrame -= 0.5f;
+            }
+            return predictFrame;
+        }
+
+        private int calnFrame(ControlledHuman.Record record)
+        {
+            if (record.getIndex() < 1)
+            {
+                return 0;
+            }
+            X_POS xSpeed = new X_POS((record.getXPos(0) - record.getXPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1)));
+            if (dtw[1] == 0f)
+            {
+                dtw[1] = X_POS.dtwDist(xSpeed, getXSpeed(1));
+                return 1;
+            }
+            float[] nDtw = new float[timestamp.Count];
+            for (int t = 1; t < timestamp.Count; t++)
+            {
+                if (nDtw[t - 1] != 0f && (nDtw[t] == 0f || nDtw[t - 1] < nDtw[t]))
+                {
+                    nDtw[t] = nDtw[t - 1];
+                }
+                if (dtw[t - 1] != 0f && (nDtw[t] == 0f || dtw[t - 1] < nDtw[t]))
+                {
+                    nDtw[t] = dtw[t - 1];
+                }
+                if (dtw[t] != 0f && (nDtw[t] == 0f || dtw[t] < nDtw[t]))
+                {
+                    nDtw[t] = dtw[t];
+                }
+                nDtw[t] += X_POS.dtwDist(xSpeed, getXSpeed(t));
+            }
+            dtw = nDtw;
+            int frame = 1;
+            for (int t = 2; t < timestamp.Count; t++)
+            {
+                if (dtw[t] != 0 && dtw[t] < dtw[frame])
+                {
+                    frame = t;
+                }
+            }
+            return frame;
+        }
 
         public void readTags(string[] tags, int baseId = 0)
         {
@@ -313,7 +373,8 @@ public class Data : MonoBehaviour {
                     {
                         moving = true;
                     }
-                } else
+                }
+                else
                 {
                     moveFrame = 0;
                     stopFrame++;
@@ -328,7 +389,8 @@ public class Data : MonoBehaviour {
                     {
                         startIndex = t - moveFrame;
                     }
-                } else
+                }
+                else
                 {
                     if (startIndex != -1 && endIndex == -1)
                     {
@@ -343,7 +405,8 @@ public class Data : MonoBehaviour {
                 Debug.Log("segment error (begin)");
                 startIndex = 0;
                 ok = false;
-            } else if (Mathf.Abs(timestamp[startIndex] - timestamp[0] - 1f) > 0.5f)
+            }
+            else if (Mathf.Abs(timestamp[startIndex] - timestamp[0] - 1f) > 0.5f)
             {
                 ok = false;
             }
@@ -412,68 +475,6 @@ public class Data : MonoBehaviour {
             return new Y_POS(yPos[intT] * (t - intT) + yPos[intT + 1] * (intT + 1 - t));
         }
 
-        public void resetMotion()
-        {
-            predictFrame = 1f;
-            dtw = new float[timestamp.Count];
-        }
-
-        public float predictMotionFrame(ControlledHuman.Record record, out float score)
-        {
-            int dtwFrame = calnFrame(record);
-            score = dtw[dtwFrame];
-            predictFrame += 1f;
-            if (dtwFrame > predictFrame + 1.0f)
-            {
-                predictFrame += 1.0f;
-            } else if (dtwFrame < predictFrame - 0.5f)
-            {
-                predictFrame -= 0.5f;
-            }
-            return predictFrame;
-        }
-
-        private int calnFrame(ControlledHuman.Record record)
-        {
-            if (record.getIndex() < 1)
-            {
-                return 0;
-            }
-            X_POS xSpeed = new X_POS((record.getXPos(0) - record.getXPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1)));
-            if (dtw[1] == 0f)
-            {
-                dtw[1] = X_POS.dtwDist(xSpeed, getXSpeed(1));
-                return 1;
-            }
-            float[] nDtw = new float[timestamp.Count];
-            for (int t = 1; t < timestamp.Count; t++)
-            {
-                if (nDtw[t - 1] != 0f && (nDtw[t] == 0f || nDtw[t - 1] < nDtw[t]))
-                {
-                    nDtw[t] = nDtw[t - 1];
-                }
-                if (dtw[t - 1] != 0f && (nDtw[t] == 0f || dtw[t - 1] < nDtw[t]))
-                {
-                    nDtw[t] = dtw[t - 1];
-                }
-                if (dtw[t] != 0f && (nDtw[t] == 0f || dtw[t] < nDtw[t]))
-                {
-                    nDtw[t] = dtw[t];
-                }
-                nDtw[t] += X_POS.dtwDist(xSpeed, getXSpeed(t));
-            }
-            dtw = nDtw;
-            int frame = 1;
-            for (int t = 2; t< timestamp.Count; t++)
-            {
-                if (dtw[t] != 0 && dtw[t] < dtw[frame])
-                {
-                    frame = t;
-                }
-            }
-            return frame;
-        }
-
         public void ts()
         {
             StreamWriter sw = File.CreateText("Cali/cali.txt");
@@ -501,11 +502,11 @@ public class Data : MonoBehaviour {
         public void output(string fileName, string motionName, int motionId)
         {
             StreamWriter sw = File.AppendText(fileName);
-            
+
             for (int t = 0; t < timestamp.Count; t++)
             {
                 string info = motionName + " " + motionId.ToString() + " " + timestamp[t].ToString();
-                
+
                 for (int i = 0; i < xPos[t].N; i++)
                 {
                     info += " " + xPos[t].vec[i].ToString();
@@ -549,12 +550,14 @@ public class Data : MonoBehaviour {
             motions[name][id].readTags(tags);
         }
     }
-    
-	void Start () {
 
-	}
-	
-	void Update () {
+    void Start()
+    {
 
-	}
+    }
+
+    void Update()
+    {
+
+    }
 }

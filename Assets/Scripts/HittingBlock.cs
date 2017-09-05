@@ -27,10 +27,6 @@ public class HittingBlock : MonoBehaviour {
     {
         if (obj.name == "Block")
         {
-            if (parkourControl.getCurrMotion() == "jumping" && (gameObject.name == "LeftFoot" || gameObject.name == "RightFoot"))
-            {
-                return;
-            }
             pulseTime = 0.5f;
             parkourControl.damage();
         }
