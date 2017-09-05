@@ -84,7 +84,10 @@ public class Net : MonoBehaviour
 
     static public void closeSocket()
     {
-        clientSocket.Close();
+        if (clientSocket != null)
+        {
+            clientSocket.Close();
+        }
     }
 
     // Send a string

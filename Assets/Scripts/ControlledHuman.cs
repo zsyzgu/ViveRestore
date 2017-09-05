@@ -173,7 +173,10 @@ public class ControlledHuman : MonoBehaviour
         Utility.leftHand = leftHand;
         Utility.rightHand = rightHand;
         loadMotions();
-        currMotion = motionName[0];
+        if (motionName.Length > 0)
+        {
+            currMotion = motionName[0];
+        }
     }
 
     protected void Update()
