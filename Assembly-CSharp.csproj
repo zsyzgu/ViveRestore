@@ -68,6 +68,7 @@
      <Compile Include="Assets\Scripts\SandbagHitting.cs" />
      <Compile Include="Assets\Scripts\SandbagStatus.cs" />
      <Compile Include="Assets\Scripts\Show.cs" />
+     <Compile Include="Assets\Scripts\SoccerTask.cs" />
      <Compile Include="Assets\Scripts\TaskManager.cs" />
      <Compile Include="Assets\Scripts\TimePanelControl.cs" />
      <Compile Include="Assets\Scripts\Utility.cs" />

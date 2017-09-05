@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class BallControl : MonoBehaviour {
     public Text scoreText;
+    public SoccerTask soccerTask;
     private Vector3 originPos;
     private Vector3 lastPos;
     private bool stop = true;
@@ -21,6 +22,8 @@ public class BallControl : MonoBehaviour {
 	}
 	
 	void Update () {
+        float dist = Vector3.Distance(originPos, transform.position);
+        scoreText.text = dist.ToString("F2") + " m";
         if (stop)
         {
             lastPos = transform.position = originPos;
@@ -37,10 +40,13 @@ public class BallControl : MonoBehaviour {
             }
             if (stopFrame >= 10)
             {
-                stop = true;
+                if (!stop)
+                {
+                    stop = true;
+                    soccerTask.setKickDistance(dist);
+                }
             }
             lastPos = transform.position;
         }
-        scoreText.text = Vector3.Distance(originPos, transform.position).ToString("F2") + " m";
 	}
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class BallKicking : MonoBehaviour {
+    public SoccerTask soccerTask;
     private const int N = 10;
     private Vector3 lastPos;
     private int id = 0;
@@ -33,13 +34,15 @@ public class BallKicking : MonoBehaviour {
             }
             speed /= N;
             obj.GetComponent<BallControl>().move();
-            if (controlledHuman.getCurrMotion() == "long_kick_right")
+            string currMotion = controlledHuman.getCurrMotion();
+            soccerTask.setKickMotion(currMotion);
+            if (currMotion == "long_kick_right")
             {
-                obj.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 5f * speed, 20f * speed));
+                obj.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 20f * speed, 30f * speed));
             }
             else
             {
-                obj.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 2f * speed, 15f * speed));
+                obj.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 2f * speed, 20f * speed));
             }
         }
     }
