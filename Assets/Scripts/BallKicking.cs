@@ -37,6 +37,7 @@ public class BallKicking : MonoBehaviour {
                 speed += speeds[i];
             }
             speed /= N;
+            Debug.Log(speed);
             obj.GetComponent<BallControl>().move();
             string currMotion = controlledHuman.getCurrMotion();
             soccerTask.setKickMotion(currMotion);
