@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class FightingTask : MonoBehaviour {
-    private int REPEAT = 5;
-    public Text taskScreen;
+public class FightingTask : TaskBase {
     public Image leftFrontKick;
     public Image rightFrontKick;
     public Image leftKneeLift;
@@ -13,7 +11,6 @@ public class FightingTask : MonoBehaviour {
     public Image leftSideKick;
     public Image rightSideKick;
     private bool canHit = true;
-    private List<string> tasks = new List<string>();
 
     private void generateTasks()
     {
@@ -27,17 +24,9 @@ public class FightingTask : MonoBehaviour {
             tasks.Add("knee_lift_right");
         }
 
-        for (int i = 0; i < tasks.Count; i++)
-        {
-            int j = (int)Random.Range(0f, i + 1f - 1e-6f);
-            string tmp = tasks[i];
-            tasks[i] = tasks[j];
-            tasks[j] = tmp;
-        }
+        shuffleTasks();
     }
-
-
-
+    
     public void setCanHit()
     {
         canHit = true;
@@ -50,43 +39,35 @@ public class FightingTask : MonoBehaviour {
             return;
         }
         canHit = false;
-        Image image = null;
-        if (motion == "front_kick_left")
+
+        if (currTaskId != -1)
         {
-            image = leftFrontKick;
-        }
-        if (motion == "front_kick_right")
-        {
-            image = rightFrontKick;
-        }
-        if (motion == "knee_lift_left")
-        {
-            image = leftKneeLift;
-        }
-        if (motion == "knee_lift_right")
-        {
-            image = rightKneeLift;
-        }
-        if (motion == "side_kick_left")
-        {
-            image = leftSideKick;
-        }
-        if (motion == "side_kick_right")
-        {
-            image = rightSideKick;
-        }
-        if (image != null)
-        {
-            image.color = new Color(Mathf.Max(0f, image.color.r - 0.2f), Mathf.Max(0f, image.color.g - 0.2f), 1f);
+            log(currTaskId + ", " + tasks[currTaskId] + ", " + motion);
         }
     }
 
-    void Start()
+    private void updatePanels()
     {
-
+        if (currTaskId != -1)
+        {
+            string task = tasks[currTaskId];
+            leftFrontKick.color = (task == "front_kick_left") ? Color.red : Color.white;
+            rightFrontKick.color = (task == "front_kick_right") ? Color.red : Color.white;
+            leftSideKick.color = (task == "side_kick_left") ? Color.red : Color.white;
+            rightSideKick.color = (task == "side_kick_right") ? Color.red : Color.white;
+            leftKneeLift.color = (task == "knee_lift_left") ? Color.red : Color.white;
+            rightKneeLift.color = (task == "knee_lift_right") ? Color.red : Color.white;
+        }
     }
 
-    void Update () {
-		
+    new void Start()
+    {
+        base.Start();
+        generateTasks();
+    }
+
+    new void Update () {
+        base.Update();
+        updatePanels();
 	}
 }

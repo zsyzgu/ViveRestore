@@ -34,7 +34,7 @@ public class SandbagHitting : MonoBehaviour {
             pulseTime = 0.2f;
             pulseForce = speed.magnitude * 250f;
             
-            obj.GetComponent<Rigidbody>().AddForceAtPosition(speed * 100f, obj.transform.position);
+            obj.GetComponent<Rigidbody>().AddForceAtPosition(speed * 30f, obj.transform.position);
             fightControl.hitSandbag();
         }
     }
