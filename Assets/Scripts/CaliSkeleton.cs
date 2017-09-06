@@ -29,12 +29,14 @@ public class CaliSkeleton : MonoBehaviour {
         {
             return;
         }
-
-        Data.X_POS xPos = new Data.X_POS(motion.xPos[t] + xStart);
-        leftHand.transform.position = new Vector3(xPos.vec[7], xPos.vec[8], xPos.vec[9]);
-        leftHand.transform.rotation = new Quaternion(xPos.vec[10], xPos.vec[11], xPos.vec[12], xPos.vec[13]);
-        rightHand.transform.position = new Vector3(xPos.vec[14], xPos.vec[15], xPos.vec[16]);
-        rightHand.transform.rotation = new Quaternion(xPos.vec[17], xPos.vec[18], xPos.vec[19], xPos.vec[20]);
+        if (t < motion.timestamp.Count)
+        {
+            Data.X_POS xPos = new Data.X_POS(motion.xPos[t] + xStart);
+            leftHand.transform.position = new Vector3(xPos.vec[7], xPos.vec[8], xPos.vec[9]);
+            leftHand.transform.rotation = new Quaternion(xPos.vec[10], xPos.vec[11], xPos.vec[12], xPos.vec[13]);
+            rightHand.transform.position = new Vector3(xPos.vec[14], xPos.vec[15], xPos.vec[16]);
+            rightHand.transform.rotation = new Quaternion(xPos.vec[17], xPos.vec[18], xPos.vec[19], xPos.vec[20]);
+        }
 
         t++;
         if (t >= motion.timestamp.Count)

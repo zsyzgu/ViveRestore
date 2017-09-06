@@ -449,10 +449,33 @@ public class Data : MonoBehaviour
             }
         }
 
-        private bool segment()
+        private void segment()
         {
             int startIndex = -1;
             int endIndex = -1;
+
+            segmentCheck(out startIndex, out endIndex);
+            
+            timestamp = timestamp.GetRange(startIndex, endIndex - startIndex + 1);
+            xPos = xPos.GetRange(startIndex, endIndex - startIndex + 1);
+            yPos = yPos.GetRange(startIndex, endIndex - startIndex + 1);
+            xStart = xPos[0];
+            yStart = yPos[0];
+            int T = timestamp.Count;
+            float startTime = timestamp[0];
+            for (int t = 0; t < T; t++)
+            {
+                xPos[t] = new X_POS(xPos[t] - xStart);
+                yPos[t] = new Y_POS(yPos[t] - yStart);
+                timestamp[t] -= startTime;
+            }
+        }
+
+        public bool segmentCheck(out int startIndex, out int endIndex)
+        {
+            bool check = true;
+            startIndex = -1;
+            endIndex = -1;
 
             int T = timestamp.Count;
             int moveFrame = 0;
@@ -485,6 +508,10 @@ public class Data : MonoBehaviour
                     {
                         startIndex = t - moveFrame;
                     }
+                    if (endIndex != -1)
+                    {
+                        check = false;
+                    }
                 }
                 else
                 {
@@ -494,40 +521,23 @@ public class Data : MonoBehaviour
                     }
                 }
             }
-            
-            bool ok = true;
+
             if (startIndex == -1)
             {
-                Debug.Log("segment error (begin)");
                 startIndex = 0;
-                ok = false;
+                check = false;
             }
             else if (Mathf.Abs(timestamp[startIndex] - timestamp[0] - 1f) > 0.5f)
             {
-                ok = false;
+                check = false;
             }
             if (endIndex == -1)
             {
-                Debug.Log("segment error (end)");
                 endIndex = timestamp.Count - 1;
-                ok = false;
-            }
-            
-            timestamp = timestamp.GetRange(startIndex, endIndex - startIndex + 1);
-            xPos = xPos.GetRange(startIndex, endIndex - startIndex + 1);
-            yPos = yPos.GetRange(startIndex, endIndex - startIndex + 1);
-            xStart = xPos[0];
-            yStart = yPos[0];
-            T = timestamp.Count;
-            float startTime = timestamp[0];
-            for (int t = 0; t < T; t++)
-            {
-                xPos[t] = new X_POS(xPos[t] - xStart);
-                yPos[t] = new Y_POS(yPos[t] - yStart);
-                timestamp[t] -= startTime;
+                check = false;
             }
 
-            return ok;
+            return check;
         }
 
         private void calnSpeed()
@@ -548,11 +558,10 @@ public class Data : MonoBehaviour
             }
         }
 
-        public bool preprocess()
+        public void preprocess()
         {
-            bool ok = segment();
+            segment();
             calnSpeed();
-            return ok;
         }
 
         public Y_POS getYPos(float t)

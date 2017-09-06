@@ -139,7 +139,6 @@ public class CaliControl : ControlledHuman {
             }
             if (Utility.isRestart())
             {
-                recordedMotion.preprocess();
                 recordedMotion.output("Cali/" + fileName + ".txt", motions[selectedMotionId], finished[selectedMotionId]);
                 finished[selectedMotionId]++;
                 updateTaskScreen();
@@ -153,7 +152,8 @@ public class CaliControl : ControlledHuman {
         recordedMotion = new Data.Motion();
         recordedMotion.formMotion(record, startIndex, record.getIndex());
         recordedMotion.ts();
-        bool ok = recordedMotion.preprocess();
+        int startIndexTmp = -1, endIndexTmp = -1;
+        bool ok = recordedMotion.segmentCheck(out startIndexTmp, out startIndex);
         if (ok)
         {
             errorScreen.color = Color.green;
