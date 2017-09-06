@@ -28,6 +28,14 @@ public class SoccerTask : MonoBehaviour {
         }
     }
 
+    private void checkLastTask()
+    {
+        if (Input.GetKey(KeyCode.B))
+        {
+            lastTask();
+        }
+    }
+
     private void generateTasks()
     {
         for (int i = 0; i < REPEAT; i++)
@@ -60,6 +68,15 @@ public class SoccerTask : MonoBehaviour {
         }
     }
 
+    private void lastTask()
+    {
+        if (currTaskId > 0)
+        {
+            currTaskId--;
+            taskScreen.text = tasks[currTaskId];
+        }
+    }
+
     public void setKickMotion(string motion)
     {
         kickMotion = motion;
@@ -83,6 +100,7 @@ public class SoccerTask : MonoBehaviour {
 	
 	void Update () {
         checkStart();
+        checkLastTask();
 	}
 
     void OnDestroy()

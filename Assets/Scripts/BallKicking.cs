@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class BallKicking : MonoBehaviour {
     public SoccerTask soccerTask;
-    private const int N = 10;
-    private Vector3 lastPos;
+    public GameObject leftHand;
+    public GameObject rightHand;
+    private const int N = 20;
+    private Vector3 lastPosLeft;
+    private Vector3 lastPosRight;
     private int id = 0;
     private float[] speeds = new float[N];
     private ControlledHuman controlledHuman;
@@ -15,12 +18,13 @@ public class BallKicking : MonoBehaviour {
 	}
 	
 	void Update () {
-        speeds[id++] = (transform.position - lastPos).magnitude / Time.deltaTime;
+        speeds[id++] = ((leftHand.transform.position - lastPosLeft).magnitude + (rightHand.transform.position - lastPosRight).magnitude) / 2f / Time.deltaTime;
         if (id == N)
         {
             id = 0;
         }
-        lastPos = transform.position;
+        lastPosLeft = leftHand.transform.position;
+        lastPosRight = rightHand.transform.position;
     }
 
     void OnTriggerEnter(Collider obj)
@@ -42,7 +46,7 @@ public class BallKicking : MonoBehaviour {
             }
             else
             {
-                obj.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 2f * speed, 20f * speed));
+                obj.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 2f * speed, 30f * speed));
             }
         }
     }
