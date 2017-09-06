@@ -14,32 +14,8 @@ public class ParkourControl : ControlledHuman {
         hpCounter.demage(0.1f);
     }
 
-    new void Start()
+    private void updateForward()
     {
-        base.Start();
-        resetCaliMotions();
-    }
-
-    new void Update()
-    {
-        base.Update();
-
-        updateHMM();
-
-        if (!movingDetect.isMoving())
-        {
-            if ((leftHand.transform.position.y + rightHand.transform.position.y) / 2 > waist.transform.position.y)
-            {
-                currMotion = "running";
-            }
-            else
-            {
-                currMotion = "walking";
-            }
-        }
-
-        retrieval();
-
         if (currMotion != "walking")
         {
             forwardSpeed = Mathf.Min(forwardSpeed + 1f * Time.deltaTime, 3.0f);
@@ -55,5 +31,27 @@ public class ParkourControl : ControlledHuman {
             forward = 0f;
         }
         transform.position = new Vector3(0f, 0f, forward);
+    }
+
+    new void Start()
+    {
+        base.Start();
+        resetCaliMotions();
+        currMotion = "walking";
+    }
+
+    new void Update()
+    {
+        base.Update();
+
+        updateHMM();
+
+        if (!movingDetect.isMoving())
+        {
+            currMotion = "walking";
+        }
+
+        retrieval();
+        updateForward();
     }
 }

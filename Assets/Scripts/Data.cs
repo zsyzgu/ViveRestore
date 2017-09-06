@@ -113,9 +113,9 @@ public class Data : MonoBehaviour
             {
                 if (objs[i] != null)
                 {
-                    vec[i * 7 + 0] = objs[i].transform.position.x;
-                    vec[i * 7 + 1] = objs[i].transform.position.y;
-                    vec[i * 7 + 2] = objs[i].transform.position.z;
+                    vec[i * 7 + 0] = objs[i].transform.localPosition.x;
+                    vec[i * 7 + 1] = objs[i].transform.localPosition.y;
+                    vec[i * 7 + 2] = objs[i].transform.localPosition.z;
                     vec[i * 7 + 3] = objs[i].transform.rotation.x;
                     vec[i * 7 + 4] = objs[i].transform.rotation.y;
                     vec[i * 7 + 5] = objs[i].transform.rotation.z;

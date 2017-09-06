@@ -294,7 +294,7 @@ public class ControlledHuman : MonoBehaviour
         int cnt = 0;
         for (int i = 0; i < yPos.N; i += 7)
         {
-            objs[cnt].transform.position = objs[cnt].transform.position * smoothK + new Vector3(yPos.vec[i + 0], yPos.vec[i + 1], yPos.vec[i + 2]) * (1 - smoothK);
+            objs[cnt].transform.localPosition = objs[cnt].transform.localPosition * smoothK + new Vector3(yPos.vec[i + 0], yPos.vec[i + 1], yPos.vec[i + 2]) * (1 - smoothK);
             objs[cnt].transform.rotation = new Quaternion(yPos.vec[i + 3], yPos.vec[i + 4], yPos.vec[i + 5], yPos.vec[i + 6]);
             cnt++;
         }
