@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SandbagStatus : MonoBehaviour {
+public class FightingTask : MonoBehaviour {
+    private int REPEAT = 5;
+    public Text taskScreen;
     public Image leftFrontKick;
     public Image rightFrontKick;
     public Image leftKneeLift;
@@ -11,20 +13,30 @@ public class SandbagStatus : MonoBehaviour {
     public Image leftSideKick;
     public Image rightSideKick;
     private bool canHit = true;
+    private List<string> tasks = new List<string>();
 
-    void resetColor()
+    private void generateTasks()
     {
-        leftFrontKick.color = Color.white;
-        rightFrontKick.color = Color.white;
-        leftKneeLift.color = Color.white;
-        rightKneeLift.color = Color.white;
-        leftSideKick.color = Color.white;
-        rightSideKick.color = Color.white;
+        for (int i = 0; i < REPEAT; i++)
+        {
+            tasks.Add("front_kick_left");
+            tasks.Add("front_kick_right");
+            tasks.Add("side_kick_left");
+            tasks.Add("side_kick_right");
+            tasks.Add("knee_lift_left");
+            tasks.Add("knee_lift_right");
+        }
+
+        for (int i = 0; i < tasks.Count; i++)
+        {
+            int j = (int)Random.Range(0f, i + 1f - 1e-6f);
+            string tmp = tasks[i];
+            tasks[i] = tasks[j];
+            tasks[j] = tmp;
+        }
     }
 
-	void Start () {
-        resetColor();
-	}
+
 
     public void setCanHit()
     {
@@ -69,7 +81,12 @@ public class SandbagStatus : MonoBehaviour {
         }
     }
 
-	void Update () {
+    void Start()
+    {
+
+    }
+
+    void Update () {
 		
 	}
 }

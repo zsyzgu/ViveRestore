@@ -5,14 +5,11 @@ using UnityEngine;
 using System.IO;
 
 public class FightControl : ControlledHuman {
-    public SandbagStatus sandbag;
+    public FightingTask fightingTask;
 
-    public void hitSandbag(float speed)
+    public void hitSandbag()
     {
-        if (movingDetect.isMoving())
-        {
-            sandbag.hit(currMotion);
-        }
+        fightingTask.hit(currMotion);
     }
 
     new void Start()
@@ -40,7 +37,7 @@ public class FightControl : ControlledHuman {
         
         if (movingDetect.isFirstMove())
         {
-            sandbag.setCanHit();
+            fightingTask.setCanHit();
         }
 
         retrieval();

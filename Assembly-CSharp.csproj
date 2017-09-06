@@ -55,6 +55,7 @@
      <Compile Include="Assets\Scripts\Data.cs" />
      <Compile Include="Assets\Scripts\DataCollect.cs" />
      <Compile Include="Assets\Scripts\FightControl.cs" />
+     <Compile Include="Assets\Scripts\FightingTask.cs" />
      <Compile Include="Assets\Scripts\FileLogger.cs" />
      <Compile Include="Assets\Scripts\FootController.cs" />
      <Compile Include="Assets\Scripts\FromTrackers.cs" />
@@ -66,9 +67,9 @@
      <Compile Include="Assets\Scripts\Net.cs" />
      <Compile Include="Assets\Scripts\ParkourControl.cs" />
      <Compile Include="Assets\Scripts\SandbagHitting.cs" />
-     <Compile Include="Assets\Scripts\SandbagStatus.cs" />
      <Compile Include="Assets\Scripts\Show.cs" />
      <Compile Include="Assets\Scripts\SoccerTask.cs" />
+     <Compile Include="Assets\Scripts\TaskBase.cs" />
      <Compile Include="Assets\Scripts\TaskManager.cs" />
      <Compile Include="Assets\Scripts\TimePanelControl.cs" />
      <Compile Include="Assets\Scripts\Utility.cs" />
