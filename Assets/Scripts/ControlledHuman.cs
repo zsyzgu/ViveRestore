@@ -282,7 +282,7 @@ public class ControlledHuman : MonoBehaviour
         return motion;
     }
 
-    private const float smoothK = 0.8f;
+    private const float smoothK = 0.5f;
     protected void setLowerBody(Data.Y_POS yPos)
     {
         List<GameObject> objs = new List<GameObject>();
@@ -294,7 +294,7 @@ public class ControlledHuman : MonoBehaviour
         int cnt = 0;
         for (int i = 0; i < yPos.N; i += 7)
         {
-            objs[cnt].transform.localPosition = objs[cnt].transform.localPosition * smoothK + new Vector3(yPos.vec[i + 0], yPos.vec[i + 1], yPos.vec[i + 2]) * (1 - smoothK);
+            objs[cnt].transform.position = objs[cnt].transform.position * smoothK + new Vector3(yPos.vec[i + 0], yPos.vec[i + 1], yPos.vec[i + 2]) * (1 - smoothK);
             objs[cnt].transform.rotation = new Quaternion(yPos.vec[i + 3], yPos.vec[i + 4], yPos.vec[i + 5], yPos.vec[i + 6]);
             cnt++;
         }
@@ -355,7 +355,7 @@ public class ControlledHuman : MonoBehaviour
 
     protected void retrieval()
     {
-        if (movingDetect.isMoving())
+        if (movingDetect.isMoving() || currMotion == "walking")
         {
             if (movingDetect.isFirstMove())
             {
@@ -369,10 +369,14 @@ public class ControlledHuman : MonoBehaviour
                 {
                     float score = 0f;
                     float frame = caliMotions[name][i].predictMotionFrame(record, out score);
-                    if (name == currMotion && score < minScore)
+                    if (currMotion == name && score < minScore)
                     {
                         minScore = score;
-                        predictFrame = frame;
+                        predictFrame = frame / caliMotions[name][i].timestamp.Count * stdMotions[currMotion].timestamp.Count;
+                    }
+                    if (name == "walking" || name == "running")
+                    {
+                        break;
                     }
                 }
             }

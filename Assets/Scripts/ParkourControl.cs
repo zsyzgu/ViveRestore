@@ -5,28 +5,32 @@ using UnityEngine.UI;
 
 public class ParkourControl : ControlledHuman {
     public HPCounter hpCounter;
-
-    private float forwardSpeed = 0.2f;
     private float forward = 0f;
 
     public void damage()
     {
-        hpCounter.demage(0.1f);
+        hpCounter.demage(0.01f);
+    }
+
+    private void setCircularDtw()
+    {
+        foreach (string name in motionName)
+        {
+            if (name == "running" || name == "walking")
+            {
+                for (int i = 0; i < CALI_NUM; i++)
+                {
+                    caliMotions[name][i].setCircularDtw(true);
+                }
+            }
+        }
     }
 
     private void updateForward()
     {
         if (hpCounter.gameOver() == false)
         {
-            if (currMotion != "walking")
-            {
-                forwardSpeed = Mathf.Min(forwardSpeed + 1f * Time.deltaTime, 3.0f);
-            }
-            else
-            {
-                forwardSpeed = Mathf.Max(forwardSpeed - 1f * Time.deltaTime, 1.0f);
-            }
-            forward += forwardSpeed * Time.deltaTime;
+            forward += 2f * Time.deltaTime;
 
             if (forward > 45f)
             {
@@ -40,6 +44,7 @@ public class ParkourControl : ControlledHuman {
     {
         base.Start();
         resetCaliMotions();
+        setCircularDtw();
         currMotion = "walking";
     }
 
@@ -55,6 +60,6 @@ public class ParkourControl : ControlledHuman {
         }
 
         retrieval();
-        updateForward();
+        //updateForward();
     }
 }

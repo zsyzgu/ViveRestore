@@ -113,9 +113,9 @@ public class Data : MonoBehaviour
             {
                 if (objs[i] != null)
                 {
-                    vec[i * 7 + 0] = objs[i].transform.localPosition.x;
-                    vec[i * 7 + 1] = objs[i].transform.localPosition.y;
-                    vec[i * 7 + 2] = objs[i].transform.localPosition.z;
+                    vec[i * 7 + 0] = objs[i].transform.position.x;
+                    vec[i * 7 + 1] = objs[i].transform.position.y;
+                    vec[i * 7 + 2] = objs[i].transform.position.z;
                     vec[i * 7 + 3] = objs[i].transform.rotation.x;
                     vec[i * 7 + 4] = objs[i].transform.rotation.y;
                     vec[i * 7 + 5] = objs[i].transform.rotation.z;
@@ -192,14 +192,15 @@ public class Data : MonoBehaviour
 
         public static float dtwDist(X_POS p1, X_POS p2)
         {
-            float sum = 0;
+            return handsDist(p1, p2);
+            /*float sum = 0;
             for (int i = 7; i < p1.N; i += 7)
             {
                 float s1 = Mathf.Sqrt(p1.vec[i + 0] * p1.vec[i + 0] + p1.vec[i + 1] * p1.vec[i + 1] + p1.vec[i + 2] * p1.vec[i + 2]);
                 float s2 = Mathf.Sqrt(p2.vec[i + 0] * p2.vec[i + 0] + p2.vec[i + 1] * p2.vec[i + 1] + p2.vec[i + 2] * p2.vec[i + 2]);
                 sum += (s1 - s2) * (s1 - s2);
             }
-            return sum;
+            return sum;*/
         }
 
         public float[] getHandsVector()
@@ -268,26 +269,12 @@ public class Data : MonoBehaviour
         private float predictFrame = 0f;
         private float[] dtw = null;
 
-        public void resetMotion()
-        {
-            predictFrame = 1f;
-            dtw = new float[timestamp.Count];
-        }
+        private bool circularDtw = false;
+        private int circularCnt = 0;
 
-        public float predictMotionFrame(ControlledHuman.Record record, out float score)
+        public void setCircularDtw(bool value)
         {
-            int dtwFrame = calnFrame(record);
-            score = dtw[dtwFrame];
-            predictFrame += 1f;
-            if (dtwFrame > predictFrame + 1.0f)
-            {
-                predictFrame += 1.0f;
-            }
-            else if (dtwFrame < predictFrame - 0.5f)
-            {
-                predictFrame -= 0.5f;
-            }
-            return predictFrame;
+            circularDtw = value;
         }
 
         private X_POS xRollingMean(List<X_POS> posList)
@@ -318,19 +305,90 @@ public class Data : MonoBehaviour
             return new Y_POS(pos);
         }
 
-        private int calnFrame(ControlledHuman.Record record)
+        public void resetMotion()
+        {
+            predictFrame = 1f;
+            dtw = new float[timestamp.Count];
+        }
+
+        public float predictMotionFrame(ControlledHuman.Record record, out float score)
+        {
+            if (circularDtw)
+            {
+                circularCnt++;
+                if (circularCnt >= timestamp.Count)
+                {
+                    int back = 50;
+                    circularCnt = back;
+                    dtw = new float[timestamp.Count];
+                    X_POS currSpeed = record.getXSpeedSmooth(back);
+                    for (int t = 0; t < timestamp.Count; t++)
+                    {
+                        dtw[t] = X_POS.dtwDist(currSpeed, xSpeedSmooth[t]);
+                    }
+                    for (int i = back - 1; i >= 1; i--)
+                    {
+                        calnFrame(record, i);
+                    }
+                }
+            }
+
+            int dtwFrame = calnFrame(record);
+            score = dtw[dtwFrame];
+            predictFrame += 1f;
+
+            if (circularDtw)
+            {
+                float timeDist = dtwFrame - predictFrame;
+                if (timeDist <= 0f)
+                {
+                    timeDist += timestamp.Count - 1f;
+                }
+                if (timeDist < (timestamp.Count - 1f) / 2f)
+                {
+                    predictFrame += 1.0f;
+                } else
+                {
+                    predictFrame -= 0.5f;
+                }
+                if (predictFrame > timestamp.Count - 1f)
+                {
+                    predictFrame -= timestamp.Count - 1f;
+                }
+            } else
+            {
+                if (dtwFrame > predictFrame + 1.0f)
+                {
+                    predictFrame += 1.0f;
+                }
+                else if (dtwFrame < predictFrame - 0.5f)
+                {
+                    predictFrame -= 0.5f;
+                }
+                predictFrame = Mathf.Min(predictFrame, timestamp.Count - 1f);
+            }
+            return predictFrame;
+        }
+
+        private int calnFrame(ControlledHuman.Record record, int back = 0)
         {
             if (record.getIndex() < 1)
             {
                 return 0;
             }
-            X_POS currSpeed = record.getXSpeedSmooth(0);
+            X_POS currSpeed = record.getXSpeedSmooth(back);
             if (dtw[1] == 0f)
             {
                 dtw[1] = X_POS.dtwDist(currSpeed, xSpeedSmooth[1]);
                 return 1;
             }
             float[] nDtw = new float[timestamp.Count];
+
+            if (circularDtw)
+            {
+                dtw[0] = dtw[timestamp.Count - 1];
+            }
+
             for (int t = 1; t < timestamp.Count; t++)
             {
                 if (nDtw[t - 1] != 0f && (nDtw[t] == 0f || nDtw[t - 1] < nDtw[t]))
@@ -436,7 +494,7 @@ public class Data : MonoBehaviour
                     }
                 }
             }
-
+            
             bool ok = true;
             if (startIndex == -1)
             {
@@ -454,7 +512,7 @@ public class Data : MonoBehaviour
                 endIndex = timestamp.Count - 1;
                 ok = false;
             }
-
+            
             timestamp = timestamp.GetRange(startIndex, endIndex - startIndex + 1);
             xPos = xPos.GetRange(startIndex, endIndex - startIndex + 1);
             yPos = yPos.GetRange(startIndex, endIndex - startIndex + 1);

@@ -35,7 +35,6 @@ public class HittingBlock : MonoBehaviour {
     {
         string currMotion = parkourControl.getCurrMotion();
         bool hit = false;
-        Debug.Log(obj.name);
         if (obj.name == "BlockJump" && currMotion != "jumping")
         {
             hit = true;
