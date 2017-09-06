@@ -4,12 +4,13 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class ParkourControl : ControlledHuman {
+    public GameObject environment;
     public HPCounter hpCounter;
     private float forward = 0f;
 
     public void damage()
     {
-        hpCounter.demage(0.01f);
+        hpCounter.demage(0.1f);
     }
 
     private void setCircularDtw()
@@ -36,7 +37,7 @@ public class ParkourControl : ControlledHuman {
             {
                 forward = 0f;
             }
-            transform.position = new Vector3(0f, 0f, forward);
+            environment.transform.position = new Vector3(0f, 0f, -forward);
         }
     }
 
@@ -60,6 +61,6 @@ public class ParkourControl : ControlledHuman {
         }
 
         retrieval();
-        //updateForward();
+        updateForward();
     }
 }
