@@ -16,6 +16,11 @@ public class HPCounter : MonoBehaviour {
         }
     }
 
+    public bool gameOver()
+    {
+        return hp <= 0f;
+    }
+
     void Start () {
 		
 	}

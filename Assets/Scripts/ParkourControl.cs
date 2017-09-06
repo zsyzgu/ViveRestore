@@ -16,21 +16,24 @@ public class ParkourControl : ControlledHuman {
 
     private void updateForward()
     {
-        if (currMotion != "walking")
+        if (hpCounter.gameOver() == false)
         {
-            forwardSpeed = Mathf.Min(forwardSpeed + 1f * Time.deltaTime, 3.0f);
-        }
-        else
-        {
-            forwardSpeed = Mathf.Max(forwardSpeed - 1f * Time.deltaTime, 1.0f);
-        }
-        forward += forwardSpeed * Time.deltaTime;
+            if (currMotion != "walking")
+            {
+                forwardSpeed = Mathf.Min(forwardSpeed + 1f * Time.deltaTime, 3.0f);
+            }
+            else
+            {
+                forwardSpeed = Mathf.Max(forwardSpeed - 1f * Time.deltaTime, 1.0f);
+            }
+            forward += forwardSpeed * Time.deltaTime;
 
-        if (forward > 50f)
-        {
-            forward = 0f;
+            if (forward > 45f)
+            {
+                forward = 0f;
+            }
+            transform.position = new Vector3(0f, 0f, forward);
         }
-        transform.position = new Vector3(0f, 0f, forward);
     }
 
     new void Start()

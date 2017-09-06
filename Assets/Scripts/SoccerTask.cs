@@ -7,7 +7,6 @@ using System.IO;
 public class SoccerTask : TaskBase
 {
     private string kickMotion;
-    private float kickDistance;
 
     void generateTasks()
     {
@@ -29,7 +28,6 @@ public class SoccerTask : TaskBase
 
     public void setKickDistance(float distance)
     {
-        kickDistance = distance;
         if (currTaskId != -1)
         {
             log(currTaskId + ", " + tasks[currTaskId] + ", " + kickMotion + ", " + distance);
