@@ -19,6 +19,7 @@ public class CaliControl : ControlledHuman {
     private int selectedMotionId = 0;
     private int startIndex;
     private Data.Motion recordedMotion;
+    private int randomNumber = 0;
 
     private void initMotions()
     {
@@ -57,7 +58,7 @@ public class CaliControl : ControlledHuman {
         }
 
         finished = new int[motions.Length];
-        File.CreateText("Cali/" + fileName + ".txt");
+        File.CreateText("Cali/" + fileName + "_" + randomNumber + ".txt");
     }
 
     private void setStdSkeletons()
@@ -139,7 +140,7 @@ public class CaliControl : ControlledHuman {
             }
             if (Utility.isRestart())
             {
-                recordedMotion.output("Cali/" + fileName + ".txt", motions[selectedMotionId], finished[selectedMotionId]);
+                recordedMotion.output("Cali/" + fileName + "_" + randomNumber + ".txt", motions[selectedMotionId], finished[selectedMotionId]);
                 finished[selectedMotionId]++;
                 updateTaskScreen();
                 errorScreen.text = "";
@@ -168,6 +169,7 @@ public class CaliControl : ControlledHuman {
     new void Start()
     {
         base.Start();
+        randomNumber = Random.Range(0, 1000000000);
 
         movingDetect.setNeedPressing(false);
         initMotions();
