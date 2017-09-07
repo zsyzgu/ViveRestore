@@ -48,7 +48,7 @@ public class FightingTask : TaskBase {
 
     private void updatePanels()
     {
-        if (currTaskId != -1)
+        if (currTaskId != -1 && currTaskId < tasks.Count)
         {
             string task = tasks[currTaskId];
             leftFrontKick.color = (task == "front_kick_left") ? Color.red : Color.white;
