@@ -4,13 +4,27 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class ParkourControl : ControlledHuman {
+    private const int REPEAT = 5;
     public GameObject environment;
-    public HPCounter hpCounter;
+    private int currTaskId = -1;
     private float forward = 0f;
 
-    public void damage()
+    public bool isPractice()
     {
-        hpCounter.demage(0.1f);
+        return currTaskId == -1;
+    }
+
+    private void checkStart()
+    {
+        if (currTaskId == -1)
+        {
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                currTaskId = 0;
+                caliSkeleton.gameObject.SetActive(false);
+                forward = 0f;
+            }
+        }
     }
 
     private void setCircularDtw()
@@ -27,14 +41,32 @@ public class ParkourControl : ControlledHuman {
         }
     }
 
+    private void checkSquat()
+    {
+        if (movingDetect.isMoving())
+        {
+            int frames = record.getIndex() - movingDetect.getStartIndex();
+            float originHeight = record.getXPos(frames).vec[1];
+            float height = record.getXPos(0).vec[1];
+            if (originHeight - height > 0.1f)
+            {
+                currMotion = "squat";
+            }
+        }
+    }
+
     private void updateForward()
     {
-        if (hpCounter.gameOver() == false)
+        if (currTaskId < REPEAT)
         {
             forward += 2f * Time.deltaTime;
 
             if (forward > 45f)
             {
+                if (currTaskId != -1 && currTaskId != REPEAT)
+                {
+                    currTaskId++;
+                }
                 forward = 0f;
             }
             environment.transform.position = new Vector3(0f, 0f, -forward);
@@ -44,6 +76,7 @@ public class ParkourControl : ControlledHuman {
     new void Start()
     {
         base.Start();
+        checkStart();
         resetCaliMotions();
         setCircularDtw();
         currMotion = "walking";
@@ -52,9 +85,11 @@ public class ParkourControl : ControlledHuman {
     new void Update()
     {
         base.Update();
+        checkStart();
 
         updateHMM();
 
+        checkSquat();
         if (!movingDetect.isMoving())
         {
             currMotion = "walking";

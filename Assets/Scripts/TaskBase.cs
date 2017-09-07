@@ -6,7 +6,7 @@ using System.IO;
 
 public class TaskBase : MonoBehaviour
 {
-    protected const int REPEAT = 5;
+    protected const int REPEAT = 10;
     public Text taskScreen;
     public GameObject caliSkeleton;
     public string saveFile;

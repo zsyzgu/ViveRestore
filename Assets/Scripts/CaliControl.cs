@@ -153,7 +153,7 @@ public class CaliControl : ControlledHuman {
         recordedMotion.formMotion(record, startIndex, record.getIndex());
         recordedMotion.ts();
         int startIndexTmp = -1, endIndexTmp = -1;
-        bool ok = recordedMotion.segmentCheck(out startIndexTmp, out startIndex);
+        bool ok = recordedMotion.segmentCheck(out startIndexTmp, out endIndexTmp);
         if (ok)
         {
             errorScreen.color = Color.green;

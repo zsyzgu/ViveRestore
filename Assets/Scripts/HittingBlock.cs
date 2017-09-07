@@ -33,28 +33,30 @@ public class HittingBlock : MonoBehaviour {
 
     void OnTriggerEnter(Collider obj)
     {
-        string currMotion = parkourControl.getCurrMotion();
-        bool hit = false;
-        if (obj.name == "BlockJump" && currMotion != "jumping")
+        if (parkourControl.isPractice() == false)
         {
-            hit = true;
-        }
-        if (obj.name == "BlockSquat" && currMotion != "squat")
-        {
-            hit = true;
-        }
-        if (obj.name == "BlockRun" && currMotion != "running")
-        {
-            hit = true;
-        }
-        if (hit)
-        {
-            pulseTime = 0.5f;
-            parkourControl.damage();
-        }
+            string currMotion = parkourControl.getCurrMotion();
+            bool hit = false;
+            if (obj.name == "BlockJump" && currMotion != "jumping")
+            {
+                hit = true;
+            }
+            if (obj.name == "BlockSquat" && currMotion != "squat")
+            {
+                hit = true;
+            }
+            if (obj.name == "BlockRun" && currMotion != "running")
+            {
+                hit = true;
+            }
+            if (hit)
+            {
+                pulseTime = 0.5f;
+            }
 
-        hitCount++;
-        log(hitCount + ", " + obj.name + ", " + currMotion + ", " + !hit);
+            hitCount++;
+            log(hitCount + ", " + obj.name + ", " + currMotion + ", " + !hit);
+        }
     }
 
     void OnDestroy()
