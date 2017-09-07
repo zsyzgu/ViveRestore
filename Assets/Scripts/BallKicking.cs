@@ -16,7 +16,7 @@ public class BallKicking : MonoBehaviour {
 
     void OnTriggerEnter(Collider obj)
     {
-        if (obj.name == "Ball")
+        if (obj.name == "Ball" && obj.GetComponent<BallControl>().isStop())
         {
             obj.GetComponent<BallControl>().move();
             string currMotion = controller.getCurrMotion();

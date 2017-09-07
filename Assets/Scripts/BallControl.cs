@@ -20,6 +20,11 @@ public class BallControl : MonoBehaviour {
 	void Start () {
         originPos = transform.position;
 	}
+
+    public bool isStop()
+    {
+        return stop;
+    }
 	
 	void Update () {
         float dist = Vector3.Distance(originPos, transform.position);
