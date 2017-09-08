@@ -106,6 +106,22 @@ public class ControlledHuman : MonoBehaviour
             return timestamp[(index - frame) % RECORD_FRAMS];
         }
 
+        public float[] getHMMVector()
+        {
+            float[] vec = new float[14];
+            for (int i = 0; i < 14; i++)
+            {
+                if (i % 7 < 3)
+                {
+                    vec[i] = xSpeedSmooth[index % RECORD_FRAMS].vec[i + 7];
+                } else
+                {
+                    vec[i] = xPosSmooth[index % RECORD_FRAMS].vec[i + 7];
+                }
+            }
+            return vec;
+        }
+
         public Data.X_POS getXSpeedSmooth(int frame)
         {
             if (frame > index)
@@ -344,7 +360,7 @@ public class ControlledHuman : MonoBehaviour
             {
                 HmmClient.hmmStart();
             }
-            HmmClient.newFrame(record.getXSpeedSmooth(0).getHandsVector());
+            HmmClient.newFrame(record.getHMMVector());
             HmmClient.getAction();
             if (HmmClient.Action != "")
             {

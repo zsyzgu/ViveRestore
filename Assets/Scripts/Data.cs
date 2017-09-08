@@ -202,16 +202,6 @@ public class Data : MonoBehaviour
             }
             return sum;*/
         }
-
-        public float[] getHandsVector()
-        {
-            float[] ret = new float[14];
-            for (int i = 0; i < 14; i++)
-            {
-                ret[i] = vec[i + 7];
-            }
-            return ret;
-        }
     }
 
     public class Y_POS : POS
