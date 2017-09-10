@@ -65,6 +65,7 @@
      <Compile Include="Assets\Scripts\MappingHuman.cs" />
      <Compile Include="Assets\Scripts\Net.cs" />
      <Compile Include="Assets\Scripts\ParkourControl.cs" />
+     <Compile Include="Assets\Scripts\QTest.cs" />
      <Compile Include="Assets\Scripts\SandbagHitting.cs" />
      <Compile Include="Assets\Scripts\Show.cs" />
      <Compile Include="Assets\Scripts\SoccerTask.cs" />

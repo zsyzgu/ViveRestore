@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class SandbagHitting : MonoBehaviour {
     FightControl fightControl = null;
+    FightingTask fightingTask;
     private float pulseTime = 0f;
     private float pulseForce = 0f;
     private Vector3 lastPos;
@@ -12,6 +13,7 @@ public class SandbagHitting : MonoBehaviour {
     void Start()
     {
         fightControl = transform.parent.GetComponent<FightControl>();
+        fightingTask = GameObject.Find("Canvas").GetComponent<FightingTask>();
     }
 
     void Update()
@@ -36,6 +38,7 @@ public class SandbagHitting : MonoBehaviour {
             
             obj.GetComponent<Rigidbody>().AddForceAtPosition(speed * 30f, obj.transform.position);
             fightControl.hitSandbag();
+            fightControl.logCurrMotion(fightingTask.getTaskId());
         }
     }
 }

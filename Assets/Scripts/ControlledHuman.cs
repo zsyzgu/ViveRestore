@@ -46,12 +46,23 @@ public class ControlledHuman : MonoBehaviour
         {
             int cnt = 1;
             Data.POS pos = posList[index % RECORD_FRAMS];
+            Data.POS maxPos = pos;
+            Data.POS minPOS = pos;
             for (int i = index - 1; i > index - 9 && i >= 0; i--)
             {
                 cnt++;
-                pos = pos + posList[i %  RECORD_FRAMS];
+                Data.POS thisPos = posList[i % RECORD_FRAMS];
+                pos = pos + thisPos;
+                maxPos = Data.POS.max(maxPos, thisPos);
+                minPOS = Data.POS.min(minPOS, thisPos);
             }
-            pos = pos / cnt;
+            if (cnt > 2)
+            {
+                pos = (pos - maxPos - minPOS) / (cnt - 2);
+            } else
+            {
+                pos = pos / cnt;
+            }
             return new Data.X_POS(pos);
         }
 
@@ -59,12 +70,24 @@ public class ControlledHuman : MonoBehaviour
         {
             int cnt = 1;
             Data.POS pos = posList[index % RECORD_FRAMS];
+            Data.POS maxPos = pos;
+            Data.POS minPOS = pos;
             for (int i = index - 1; i > index - 9 && i >= 0; i--)
             {
                 cnt++;
-                pos = pos + posList[i % RECORD_FRAMS];
+                Data.POS thisPos = posList[i % RECORD_FRAMS];
+                pos = pos + thisPos;
+                maxPos = Data.POS.max(maxPos, thisPos);
+                minPOS = Data.POS.min(minPOS, thisPos);
             }
-            pos = pos / cnt;
+            if (cnt > 2)
+            {
+                pos = (pos - maxPos - minPOS) / (cnt - 2);
+            }
+            else
+            {
+                pos = pos / cnt;
+            }
             return new Data.Y_POS(pos);
         }
 
@@ -111,13 +134,14 @@ public class ControlledHuman : MonoBehaviour
             float[] vec = new float[14];
             for (int i = 0; i < 14; i++)
             {
-                if (i % 7 < 3)
+                vec[i] = xSpeedList[index % RECORD_FRAMS].vec[i + 7];
+                /*if (i % 7 < 3)
                 {
                     vec[i] = xSpeedSmooth[index % RECORD_FRAMS].vec[i + 7];
                 } else
                 {
                     vec[i] = xPosSmooth[index % RECORD_FRAMS].vec[i + 7];
-                }
+                }*/
             }
             return vec;
         }
@@ -246,8 +270,20 @@ public class ControlledHuman : MonoBehaviour
     }
     protected MovingDetect movingDetect = new MovingDetect();
 
+    private int randomNumber;
+    public void logCurrMotion(int id)
+    {
+        if (movingDetect.isMoving())
+        {
+            Data.Motion motion = new Data.Motion();
+            motion.formMotion(record, movingDetect.getStartIndex(), record.getIndex());
+            motion.output("Track/track" + randomNumber + "_.txt", currMotion, id);
+        }
+    }
+
     protected void Start()
     {
+        randomNumber = Random.Range(0, 1000000000);
         Utility.leftHand = leftHand;
         Utility.rightHand = rightHand;
         loadMotions();

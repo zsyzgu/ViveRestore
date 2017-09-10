@@ -56,6 +56,7 @@ public class HittingBlock : MonoBehaviour {
         {
             hitCount++;
             log(hitCount + ", " + obj.name + ", " + currMotion + ", " + !hit);
+            parkourControl.logCurrMotion(hitCount);
         }
     }
 

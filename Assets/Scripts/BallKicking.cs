@@ -22,6 +22,7 @@ public class BallKicking : MonoBehaviour {
             string currMotion = controller.getCurrMotion();
             soccerTask.setKickMotion(currMotion);
             float speed = controller.getHandSpeed();
+            controller.logCurrMotion(soccerTask.getTaskId());
             if (currMotion == "long_kick_right")
             {
                 obj.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 18f * speed, 30f * speed));

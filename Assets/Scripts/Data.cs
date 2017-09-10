@@ -26,6 +26,26 @@ public class Data : MonoBehaviour
             vec = new float[N];
         }
 
+        public static POS max(POS p1, POS p2)
+        {
+            POS p = new POS(p1.N);
+            for (int i = 0; i < p.N; i++)
+            {
+                p.vec[i] = Mathf.Max(p1.vec[i], p2.vec[i]);
+            }
+            return p;
+        }
+
+        public static POS min(POS p1, POS p2)
+        {
+            POS p = new POS(p1.N);
+            for (int i = 0; i < p.N; i++)
+            {
+                p.vec[i] = Mathf.Min(p1.vec[i], p2.vec[i]);
+            }
+            return p;
+        }
+
         public static POS operator - (POS p1, POS p2)
         {
             POS p = new POS(p1.N);
@@ -272,12 +292,22 @@ public class Data : MonoBehaviour
             int n = posList.Count;
             int cnt = 1;
             POS pos = posList[n - 1];
+            POS maxPos = pos;
+            POS minPos = pos;
             for (int i = n - 2; i >= 0 && i >= n - 9; i--)
             {
                 cnt++;
                 pos = pos + posList[i];
+                maxPos = POS.max(maxPos, posList[i]);
+                minPos = POS.min(minPos, posList[i]);
             }
-            pos = pos / cnt;
+            if (cnt > 2)
+            {
+                pos = (pos - maxPos - minPos) / (cnt - 2);
+            } else
+            {
+                pos = pos / cnt;
+            }
             return new X_POS(pos);
         }
 
@@ -286,12 +316,23 @@ public class Data : MonoBehaviour
             int n = posList.Count;
             int cnt = 1;
             POS pos = posList[n - 1];
+            POS maxPos = pos;
+            POS minPos = pos;
             for (int i = n - 2; i >= 0 && i >= n - 9; i--)
             {
                 cnt++;
                 pos = pos + posList[i];
+                maxPos = POS.max(maxPos, posList[i]);
+                minPos = POS.min(minPos, posList[i]);
             }
-            pos = pos / cnt;
+            if (cnt > 2)
+            {
+                pos = (pos - maxPos - minPos) / (cnt - 2);
+            }
+            else
+            {
+                pos = pos / cnt;
+            }
             return new Y_POS(pos);
         }
 

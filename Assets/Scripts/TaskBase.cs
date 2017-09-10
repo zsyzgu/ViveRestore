@@ -13,6 +13,11 @@ public class TaskBase : MonoBehaviour
     protected List<string> tasks = new List<string>();
     protected int currTaskId = -1;
     private StreamWriter sw;
+
+    public int getTaskId()
+    {
+        return currTaskId;
+    }
     
     protected void shuffleTasks()
     {
