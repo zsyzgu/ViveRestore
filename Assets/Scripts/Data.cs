@@ -143,6 +143,22 @@ public class Data : MonoBehaviour
                 }
             }
         }
+
+        public void checkRotation(POS pos)
+        {
+            for (int i = 0; i < N; i += 7)
+            {
+                float d0 = Mathf.Pow(vec[i + 3] - pos.vec[i + 3], 2f) + Mathf.Pow(vec[i + 4] - pos.vec[i + 4], 2f) + Mathf.Pow(vec[i + 5] - pos.vec[i + 5], 2f) + Mathf.Pow(vec[i + 6] - pos.vec[i + 6], 2f);
+                float d1 = Mathf.Pow(vec[i + 3] + pos.vec[i + 3], 2f) + Mathf.Pow(vec[i + 4] + pos.vec[i + 4], 2f) + Mathf.Pow(vec[i + 5] + pos.vec[i + 5], 2f) + Mathf.Pow(vec[i + 6] + pos.vec[i + 6], 2f);
+                if (d1 < d0)
+                {
+                    vec[i + 3] = -vec[i + 3];
+                    vec[i + 4] = -vec[i + 4];
+                    vec[i + 5] = -vec[i + 5];
+                    vec[i + 6] = -vec[i + 6];
+                }
+            }
+        }
     }
 
     public class X_POS : POS
@@ -176,7 +192,7 @@ public class Data : MonoBehaviour
             formPos(objs);
         }
 
-        public static float handsDistToHead(X_POS p1, X_POS p2)
+        /*public static float handsDistToHead(X_POS p1, X_POS p2)
         {
             float sum = 0;
             int cnt = 0;
@@ -191,7 +207,7 @@ public class Data : MonoBehaviour
             }
             sum /= cnt;
             return sum;
-        }
+        }*/
 
         public static float handsDist(X_POS p1, X_POS p2)
         {

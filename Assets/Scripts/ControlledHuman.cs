@@ -91,18 +91,23 @@ public class ControlledHuman : MonoBehaviour
             return new Data.Y_POS(pos);
         }
 
-        public void recordData(float t, Data.X_POS xPos, Data.Y_POS yPos)
+        public void recordData(float t, Data.X_POS xPos, Data.Y_POS yPos, bool continuous)
         {
             index++;
             int i = index % RECORD_FRAMS;
             timestamp[i] = t;
+            if (continuous && index - 1 >= 0)
+            {
+                xPos.checkRotation(xPosList[(index - 1) % RECORD_FRAMS]);
+                yPos.checkRotation(yPosList[(index - 1) % RECORD_FRAMS]);
+            }
             xPosList[i] = xPos;
             yPosList[i] = yPos;
             if (index - 1 >= 0)
             {
                 float timeInterval = timestamp[i] - timestamp[(index - 1) % RECORD_FRAMS];
                 xSpeedList[i] = new Data.X_POS((xPosList[i] - xPosList[(index - 1) % RECORD_FRAMS]) / timeInterval);
-                ySpeedList[i] = new Data.Y_POS((yPosList[i] = yPosList[(index - 1) % RECORD_FRAMS]) / timeInterval);
+                ySpeedList[i] = new Data.Y_POS((yPosList[i] - yPosList[(index - 1) % RECORD_FRAMS]) / timeInterval);
             } else
             {
                 xSpeedList[i] = new Data.X_POS();
@@ -134,14 +139,13 @@ public class ControlledHuman : MonoBehaviour
             float[] vec = new float[14];
             for (int i = 0; i < 14; i++)
             {
-                vec[i] = xSpeedList[index % RECORD_FRAMS].vec[i + 7];
-                /*if (i % 7 < 3)
+                if (i % 7 < 3)
                 {
                     vec[i] = xSpeedSmooth[index % RECORD_FRAMS].vec[i + 7];
                 } else
                 {
                     vec[i] = xPosSmooth[index % RECORD_FRAMS].vec[i + 7];
-                }*/
+                }
             }
             return vec;
         }
@@ -218,7 +222,7 @@ public class ControlledHuman : MonoBehaviour
 
             if (record.getIndex() >= 1)
             {
-                float speed = Mathf.Min(Data.X_POS.handsDistToHead(record.getXPos(0), record.getXPos(1)), Data.X_POS.handsDist(record.getXPos(0), record.getXPos(1))) / (record.getTimestamp(0) - record.getTimestamp(1));
+                float speed = Data.X_POS.handsDist(record.getXPos(0), record.getXPos(1)) / (record.getTimestamp(0) - record.getTimestamp(1));
                 
                 if (pressing || needPressing == false)
                 {
@@ -298,7 +302,8 @@ public class ControlledHuman : MonoBehaviour
         float timestamp = Time.time;
         Data.X_POS xPos = new Data.X_POS(head, leftHand, rightHand);
         Data.Y_POS yPos = new Data.Y_POS(leftFoot, rightFoot, leftKnee, rightKnee, waist);
-        record.recordData(timestamp, xPos, yPos);
+        bool continuous = movingDetect.isMoving();
+        record.recordData(timestamp, xPos, yPos, continuous);
         movingDetect.update(record);
         updateCaliSkeleton();
     }
@@ -380,14 +385,14 @@ public class ControlledHuman : MonoBehaviour
     {
         if (caliSkeleton != null)
         {
-            caliSkeleton.setMotion(stdMotions[currMotion]);
+            caliSkeleton.setMotion(caliMotions[currMotion][0]);
             if (movingDetect.isFirstMove())
             {
                 caliSkeleton.playMotion(record.getXPos(0));
             }
         }
     }
-
+    
     protected void updateHMM()
     {
         if (movingDetect.isMoving())

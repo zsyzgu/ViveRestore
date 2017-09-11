@@ -33,6 +33,7 @@ public static class HmmClient
 
     public static void newFrame(float[] data)
     {
+        //Debug.Log(data[7] + ", " + data[8] + ", " + data[9] + ", " + data[10] + ", " + data[11] + ", " + data[12] + ", " + data[13]);
         Net.send(Net.NetDataType.newframe, data);
     }
 }
