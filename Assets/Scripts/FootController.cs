@@ -8,6 +8,21 @@ public class FootController : ControlledHuman {
         base.Start();
 	}
 
+    private void updateUsualTech()
+    {
+        if (HmmClient.Action == "")
+        {
+            if (Utility.leftPress())
+            {
+                currMotion = "inner_kick_right";
+            }
+            if (Utility.rightPress())
+            {
+                currMotion = "long_kick_right";
+            }
+        }
+    }
+
     public float getHandSpeed()
     {
         int frames = record.getIndex() - movingDetect.getStartIndex();
@@ -36,6 +51,7 @@ public class FootController : ControlledHuman {
         base.Update();
 
         updateHMM();
+        updateUsualTech();
         retrieval();
 	}
 }

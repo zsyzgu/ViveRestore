@@ -12,6 +12,21 @@ public class FightControl : ControlledHuman {
         fightingTask.hit(currMotion);
     }
 
+    private void updateUsualTech()
+    {
+        if (HmmClient.Action == "")
+        {
+            if (Utility.leftPress())
+            {
+                currMotion = "side_kick_left";
+            }
+            if (Utility.rightPress())
+            {
+                currMotion = "side_kick_right";
+            }
+        }
+    }
+
     new void Start()
     {
         base.Start();
@@ -34,6 +49,8 @@ public class FightControl : ControlledHuman {
                 currMotion = "side_kick_left";
             }
         }
+        
+        updateUsualTech();
         
         if (movingDetect.isFirstMove())
         {

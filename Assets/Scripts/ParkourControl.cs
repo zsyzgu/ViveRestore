@@ -14,6 +14,21 @@ public class ParkourControl : ControlledHuman {
         return currTaskId == -1;
     }
 
+    private void updateUsualTech()
+    {
+        if (HmmClient.Action == "")
+        {
+            if (Utility.leftPress())
+            {
+                currMotion = "squat";
+            }
+            if (Utility.rightPress())
+            {
+                currMotion = "jumping";
+            }
+        }
+    }
+
     private void checkStart()
     {
         if (currTaskId == -1)
@@ -88,13 +103,14 @@ public class ParkourControl : ControlledHuman {
         checkStart();
 
         updateHMM();
+        //updateUsualTech();
 
         checkSquat();
         if (!movingDetect.isMoving())
         {
             currMotion = "walking";
         }
-
+        
         retrieval();
         updateForward();
     }
